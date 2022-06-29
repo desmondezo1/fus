@@ -1,0 +1,183 @@
+body{
+    background: #061018;
+}
+
+.text-white{
+    color: #FFFFFF;
+}
+
+.text-grey{
+    color: #AFBED0;
+}
+
+.text-light-grey{
+    color: #C7D2DA;
+}
+
+.text-green{
+    color: rgba(81, 235, 180, 1);
+}
+
+.navbar{
+    padding: 18px 20.56px 25px 53.73px;
+}
+
+.navbar-brand{
+    display: flex;
+    align-items: baseline;
+    margin-right: 71.99px;
+}
+
+.navbar-brand span img{
+    height: 100%;
+}
+
+.navbar-brand .flogo{
+    height: 19px;
+    /* align-self: baseline; */
+    margin-right: 10px;
+}
+
+.navbar-brand .logotext{
+    height: 16px;
+}
+.navbar #navbarNav ul{
+    background: #061018;
+}
+
+.navbar #navbarNav ul li{
+    margin-right: 30.33px;
+}
+
+.navbar-nav .active a{
+    color: #fff!important;
+}
+.navbar-nav .nav-item a{
+    color: #AFBED0;
+    font-weight: 600;
+}
+
+.connectWallet{
+    display: flex;
+    color: #fff;
+    background: #784FFE;
+    padding: 10.78px 32.28px;
+    border-radius: 4.44px;
+
+}
+
+
+/* info wrapper section  */
+.info-wrapper .portfolio_value{
+    background-color:rgba(139, 104, 253, 0.16);
+    color: #fff;
+    padding: 21px 40px;
+}
+
+ .other-tokens .token .tokenName{
+    width: fit-content;
+ }
+
+ .token{
+    margin-right: 92px;
+ }
+
+ .token .tokenName{
+    color:  #AFBED0;
+    font-weight: 400;
+ }
+
+ .token .tokenValue{
+    color: #fff;
+    font-weight: 600;
+    font-size: 22px;
+ }
+.progress{
+    height: 11px;
+    border-radius: 0;
+}
+#eclipse_green{
+    height: 10px;
+    width: 10px;
+    margin-right: 8px;
+    background: #3FB68B!important;
+    border-radius: 50%;
+}
+
+#eclipse_blue{
+    height: 10px;
+    width: 10px;
+    margin-right: 8px;
+    background:  #51C6EB!important;
+    border-radius: 50%;
+}
+
+#eclipse_purple{
+    height: 10px;
+    width: 10px;
+    margin-right: 8px;
+    background: #A286FE!important;
+    border-radius: 50%;
+}
+
+.position-wrapper{
+    background: #0E1725;
+    border-radius: 4px;
+    align-items: center;
+}
+
+.claim-reward{
+    background: #3FB68B;
+    padding: 16px;
+    border-radius: 4px;
+}
+
+.staking-pool-table-wrapper{
+    padding: 10px;
+}
+
+.table thead th{
+    border-bottom: 1px solid #132236;
+}
+
+.table th, .table td{
+    border-bottom: 1px solid #132236;
+}
+
+.stake-btn{
+    padding: 16px 32px;
+    background: #784FFE;
+    border-radius: 4px;
+    color: #FFFFFF;
+}
+
+/* modal  */
+
+.modal{
+    background: rgba(4, 11, 17, 0.95);
+    color: #fff;
+}
+
+.modal-content{
+    background: rgba(19, 34, 54, 1);
+    color: #fff;
+}
+
+.modal-header{
+    border-bottom: 1px solid #132236;
+}
+.nav-pills{
+    background: #0E1725;
+    border: 1px solid #132236;
+    border-radius: 4px;
+}
+
+.nav-pills .nav-item .active{
+    background: #784FFE;
+    border-radius: 4px;
+}
+
+.nav-pills .nav-item a{
+    color: #fff;
+    font-weight: 500;
+}
