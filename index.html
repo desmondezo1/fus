@@ -323,7 +323,7 @@
                       <div class="tab-content" id="pills-tabContent">
                         <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                             
-                            <div class="d-flex justify-content-between text-grey">
+                            <div class="d-flex justify-content-between text-grey" style="margin-bottom: 10px;">
                                 <span>
                                     Amount
                                 </span>
@@ -352,7 +352,7 @@
                                 <span class="d-flex justify-content-between" style="margin-bottom:18px">
                                     <span>Amount 
                                     <span> 
-                                        <img src="/src/img/info.png" alt="">
+                                        <img height="20px" src="/src/img/info.png" alt="">
                                     </span>
                                     </span>
                                     <span>20,000 FSN ($1,000)</span>
@@ -361,14 +361,16 @@
                                 <span class="d-flex justify-content-between" style="margin-bottom:18px">
                                     <span>Duration 
                                         <span> 
-                                            <img src="/src/img/info.png" alt="">
+                                            <img height="20px" src="/src/img/info.png" alt="">
                                         </span>
                                     </span>
                                     <span>30 Days</span>
                                 </span>
                                 <span class="d-flex justify-content-between" style="margin-bottom:18px">
                                     <span>Transaction Fee</span>
-                                    <span>$2 <span style="color:rgba(171, 146, 252, 1);"> (Fast) </span> </span>
+                                    <span>$2 <span style="color:rgba(171, 146, 252, 1);"> (Fast) </span> <span>
+                                        <img src="/src/img/downarrow.png" alt="">
+                                    </span> </span>
                                 </span>
                             </div>
 
@@ -388,42 +390,58 @@
                                     Stake
                                 </Button>
                             </div>
-                            <div></div>
+                            
 
                         </div>
                         <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
                         <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
 
-                            <p>Your Positions</p>
-                            <div class="position-wrapper d-flex justify-content-between">
+                            <p style=" color: rgba(175, 190, 208, 1);">Your Positions</p>
+                            <div class="position-wrapper d-flex justify-content-between" style="background: #0E1725;
+                            border-radius: 8px; margin-bottom: 32px; padding: 28px">
                                 
                                 <div class="d-flex flex-column">
-                                    <span class="d-flex">
+                                    <span class="d-flex align-items-center">
                                         <span class="">
                                             <img src="/src/img/spaceship.png" alt="">
                                         </span>
                                         <span class="text-white" style="font-weight: 700;
-                                        font-size: 24px;">
+                                        font-size: 24px; margin: 0 10px;">
                                             Silver Fusion
                                         </span>
                                         <span>
                                             <img src="/src/img/open.png" alt="">
                                         </span> 
                                     </span>
-                                    <p class="text-light-grey">Duration: 21 July 2022 - 30 August 2022</p>
+                                    <p class="text-light-grey" style="font-weight: 400;">Duration: 21 July 2022 - 30 August 2022</p>
                                 </div>
             
 
-                                <div class="d-flex flex-column">
+                                <div class="d-flex flex-column" >
                                     <span class="text-light-grey"> Your Stake</span>
                                     <span> 
-                                        <span class="text-white">29,302 FUSION</span>
-                                        <span class="text-light-grey">$9201</span>
+                                        <span class="text-white" style="font-weight: 700;
+                                        font-size: 1.5rem;">29,302 FUSION</span>
+                                        <span class="text-light-grey" style="font-weight: 400;">$9201</span>
                                     </span>
                                 </div>
             
             
                             </div>
+
+                            <p style=" color: rgba(175, 190, 208, 1);">Your Positions</p>
+
+                            <div class="d-flex" style="margin-bottom: 32px; font-weight: 700;
+                            font-size: 36px;background: #0E1725; border-radius: 8px; padding: 28px;">
+                                <span class="text-white">2,291 FSN</span>
+                            </div>
+
+                            <div class="d-flex">
+                                <Button class="btn flex-grow-1 stake-btn" style="font-weight: 800; font-size: 24px;">
+                                    Claim reward
+                                </Button>
+                            </div>
+
                         </div>
                       </div>
                       
