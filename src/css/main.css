@@ -50,6 +50,7 @@ header{
 }
 .navbar #navbarNav ul{
     background: #061018;
+    flex-grow: 1;
 }
 
 .navbar #navbarNav ul li{
