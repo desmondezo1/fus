@@ -269,3 +269,14 @@ header{
         margin: 1.75rem auto;
     } 
 }
+
+@media (max-width: 987px) {
+
+    .navbar{
+        padding: 18px 15.56px 25px 15.73px;
+    }
+    .navbar-brand{
+        margin-right: 0;
+    }
+    
+}
