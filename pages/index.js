@@ -354,9 +354,9 @@ export default function Home() {
                           <li className="nav-item">
                             <a className="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Staking</a>
                           </li>
-                          <li className="nav-item">
+                          {/* <li className="nav-item">
                             <a className="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Withdrawal</a>
-                          </li>
+                          </li> */}
                           <li className="nav-item">
                             <a className="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Rewards</a>
                           </li>
@@ -373,7 +373,7 @@ export default function Home() {
                                   </span>
                               </div>
   
-                              <div className="d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between align-items-center" style={{
+                              <div className="d-flex justify-content-between align-items-center" style={{
                               background: "#0E1725",
                               borderRadius: "8px",
                               padding: "0 28.5px",
@@ -389,6 +389,7 @@ export default function Home() {
                                     fontWeight: "700",
                                     fontSize: "1.8rem",
                                     border: "none",
+                                    width: "100%",
                                     outline: "none",
                                     color: "#FFF"
                                   }} />
@@ -446,7 +447,7 @@ export default function Home() {
                               
   
                           </div>
-                          <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
+                          {/* <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div> */}
                           <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
   
                               <p style={{color: "rgba(175, 190, 208, 1)"}}>Your Positions</p>
