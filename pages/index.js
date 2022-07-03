@@ -96,6 +96,12 @@ export default function Home() {
         }
 
     }
+
+    function addDays(timestamp, days) {
+        var result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+    }
   
     const getPositions = async () => {
         let contract = await getContract();
@@ -105,7 +111,11 @@ export default function Home() {
             let stakingBalance = await contract.getUserStakingBalance(+stakingpools[i].poolId, account);
             if(stakingBalance > 0) {
                 stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
-                let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId)
+                let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId);
+                let stakeTime = await contract.getLastStakeDate( stakingpools[i].poolId,account);
+                let startDate = new Date(stakeTime);
+                let endDate =  addDays(stakeTime, stakingpools[i].duration);
+                stakingpools[i].date = startDate + " - " + endDate;
                 stakingpools[i].reward_bal = convertToEther(reward_bal);
                 newArr.push(stakingpools[i])
             }

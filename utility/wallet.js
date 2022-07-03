@@ -58,7 +58,7 @@ export const getContract = async ()=> {
   const instance = await web3Modal.connect();
   const provider = new ethers.providers.Web3Provider(instance);
   const signer = provider.getSigner();
-  const staking = new ethers.Contract("0x2189049962f3808216932403974307451606947B", contractABI.abi, signer);
+  const staking = new ethers.Contract("0x24C7903667350C309E1525eF02e80deA6a2Be7bC", contractABI.abi, signer);
   return staking;
 }
 
