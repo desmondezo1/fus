@@ -228,9 +228,9 @@ export default function Home() {
                   <p style={{color: "#AFBED0", marginBottom: "16px"}}>Your Positions</p>
                     { !positions ? "" : (
 
-                       positions.map(item => {
+                       positions.map((item, index) => {
                         return (
-                            <div className="claim-reward position-wrapper d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between">
+                        <div key={index} className="claim-reward position-wrapper d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between">
                                             
                         <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                             <span className="d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center" style={{height: "38px"}}>
@@ -301,10 +301,10 @@ export default function Home() {
                       </thead>
                       <tbody>
                           {
-                            stakingpools.map(pool  => {
+                            stakingpools.map((pool, index)  => {
                             return(
 
-                                <tr >
+                                <tr key={index}>
                           <td>
                               <span className="d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center ">
                                   <span style={{marginRight: "16px"}}><img height={'auto'}  src={pool?.image} alt="" /> </span>
