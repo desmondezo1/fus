@@ -322,7 +322,7 @@ export default function Home() {
                           </td>
                           <td>
                               
-                              <button className="stake-btn"  data-toggle="modal" data-target="#exampleModalCenter" onClick={()=>{setModalItem(pool)}} > Stake </button>
+                              <button className="stake-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={()=>{setModalItem(pool)}} > Stake </button>
                              
                           </td>
                         </tr>
@@ -340,25 +340,25 @@ export default function Home() {
         {/* MODAL SECTION  */}
 
 
-        <div className="modal fade" id="exampleModalCenter" tabIndex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div className="modal-dialog modal-dialog-centered" role="document">
               <div className="modal-content">
                   <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalCenterTitle">Stake Fusion</h5>
-                  <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                  <button type="button" className="btn-close close" data-bs-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true"> <img height={'auto'} src="/img/ex.svg" alt="" /></span>
                   </button>
                   </div>
                   <div className="modal-body">
                       <ul className="nav nav-pills" id="pills-tab" role="tablist">
                           <li className="nav-item">
-                            <a className="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Staking</a>
+                            <a className="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"  role="tab" aria-controls="pills-home" aria-selected="true">Staking</a>
                           </li>
                           {/* <li className="nav-item">
                             <a className="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Withdrawal</a>
                           </li> */}
                           <li className="nav-item">
-                            <a className="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Rewards</a>
+                            <a className="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Rewards</a>
                           </li>
                         </ul>
                         <div className="tab-content" id="pills-tabContent">
