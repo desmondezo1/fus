@@ -400,14 +400,14 @@ export default function Home() {
                                       <span>Staking Category</span>
                                       <span>Silver Pool</span>
                                   </span>
-                                  <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
+                                  {/* <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>Amount 
                                       <span> 
                                           <img   height="20px" src="/img/info.png" alt="" />
                                       </span>
                                       </span>
                                       <span>20,000 FSN ($1,000)</span>
-                                  </span>
+                                  </span> */}
   
                                   <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>Duration 
@@ -417,12 +417,12 @@ export default function Home() {
                                       </span>
                                       <span>30 Days</span>
                                   </span>
-                                  <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
+                                  {/* <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>Transaction Fee</span>
                                       <span>$2 <span style={{color:"rgba(171, 146, 252, 1)"}}> (Fast) </span> <span>
                                           <img   height={'auto'} src="/img/downarrow.png" alt="" />
                                       </span> </span>
-                                  </span>
+                                  </span> */}
                               </div>
   
                               <div className="notice d-flex flex-wrap  flex-wrap " style={{background: "#0E1725", borderRadius: "8px" ,marginBottom: "32px", padding: "18px 33px"}}>
