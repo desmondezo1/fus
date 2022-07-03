@@ -1,4 +1,4 @@
-//import WalletConnectProvider from '@walletconnect/web3-provider'
+import WalletConnectProvider from '@walletconnect/web3-provider'
 import { ethers, providers  } from "ethers";
 import Web3Modal from "web3modal";
 import * as contractABI from './FusionStaking.json'
@@ -9,15 +9,19 @@ import * as tokenABI from './testToken.json'
 
 //const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'; //replace ID with yours
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'; //replace ID with yours
+
 const providerOptions = {
-    
-     // walletconnect: {
-       // package: WalletConnectProvider, // required
-        //options: {
-          //infuraId:  INFURA_ID // required
-        //}
-      //}
-  }
+    binancechainwallet: {
+        package: true
+      },
+      walletconnect: {
+        package: WalletConnectProvider, // required
+        options: {
+          infuraId:  INFURA_ID // required
+        }
+      },
+    }
   var web3Modal;
   if (typeof window !== "undefined") {
     web3Modal = new Web3Modal({
