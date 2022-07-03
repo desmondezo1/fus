@@ -74,6 +74,18 @@ export const convertToWei = (val) => {
   let res = ethers.utils.parseEther(val);
   return res;
 }
+export const convertToEther = (val) => {
+  let res = ethers.utils.formatEther(val);
+  return res;
+}
+
+export const getWalletBalance = async (address) =>{
+  let acc = await connectWallet();
+  let contract = await getTokenContract();
+  let val = await contract.balanceOf(acc[0]);
+  let balance = ethers.utils.formatEther(val);
+  return balance;
+}
 
 
-export default { connectWallet, disconnect, getContract, getTokenContract, convertToWei };
+export default { connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther };

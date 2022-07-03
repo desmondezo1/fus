@@ -8,7 +8,7 @@ import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import { Modal } from '../components/modal'
-import { getContract, getTokenContract, convertToWei } from '../utility/wallet'
+import { getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther } from '../utility/wallet'
 
 
 
@@ -23,21 +23,39 @@ export default function Home() {
     const [inputAmt, setAmount] = useState();
     const [pId, setpoolId] = useState();
     const [positions, setpositions] = useState();
+    const [userBalance, setUserBalance] = useState();
 
-    const setVals = () => {
+    const setVals = async () => {
         if(modalItem){           
             setAmount(modalItem.min_deposit);
             setpoolId(modalItem.poolId);
         }
+        
+    }
+
+    const setBal = async () => {
+        let bal = await getWalletBalance();
+         setUserBalance(bal);
     }
 
     useEffect(()=>{
         setVals();
         if(account){
             getPositions();
+            setBal();
         }
         
     })
+
+    function getRPCErrorMessage(err){
+        var open = err.stack.indexOf('{')
+        var close = err.stack.lastIndexOf('}')
+        var j_s = err.stack.substring(open, close + 1);
+        var j = JSON.parse(j_s);
+        var reason = j.data[Object.keys(j.data)[0]].reason;
+        return reason;
+    }
+
 
     const stake = async ( ) => {
         
@@ -53,9 +71,16 @@ export default function Home() {
 
         let contract = await getContract();
         let token = await getTokenContract();
-        let approve = await token.approve( "0x2189049962f3808216932403974307451606947B", amount );
-        if(approve){
-         let stake = await contract.stake( amount, pId  );
+        try {
+            
+            let approve = await token.approve( "0x2189049962f3808216932403974307451606947B", amount ).then( async res => {
+                if(res){
+                let stake = await contract.stake( amount, pId  );
+                }
+            });
+
+        } catch (error) {
+           console.log(error)
         }
       
     }
@@ -80,7 +105,8 @@ export default function Home() {
             let stakingBalance = await contract.getUserStakingBalance(+stakingpools[i].poolId, account);
             if(stakingBalance > 0) {
                 stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
-               
+                let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId)
+                stakingpools[i].reward_bal = convertToEther(reward_bal);
                 newArr.push(stakingpools[i])
             }
         }
@@ -369,7 +395,7 @@ export default function Home() {
                                       Amount
                                   </span>
                                   <span>
-                                      Fusion Balance: <span style={{fontWeight:"500"}}>200,000</span>
+                                      Fusion Balance: <span style={{fontWeight:"500"}}>{userBalance}</span>
                                   </span>
                               </div>
   
@@ -401,14 +427,6 @@ export default function Home() {
                                       <span>Staking Category</span>
                                       <span>Silver Pool</span>
                                   </span>
-                                  {/* <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
-                                      <span>Amount 
-                                      <span> 
-                                          <img   height="20px" src="/img/info.png" alt="" />
-                                      </span>
-                                      </span>
-                                      <span>20,000 FSN ($1,000)</span>
-                                  </span> */}
   
                                   <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>Duration 
@@ -451,51 +469,72 @@ export default function Home() {
                           <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
   
                               <p style={{color: "rgba(175, 190, 208, 1)"}}>Your Positions</p>
-                              <div className="position-wrapper d-flex flex-wrap  flex-wrap  justify-content-between" style={{background: "#0E1725"
-                              ,borderRadius: "8px", marginBottom: "32px", padding: "28px"}}>
-                                  
-                                  <div className="d-flex flex-wrap  flex-wrap  flex-column">
-                                      <span className="d-flex flex-wrap  flex-wrap  align-items-center">
-                                          <span className="">
-                                              <img height={'auto'}  src="/img/spaceship.png" alt="" />
-                                          </span>
-                                          <span className="text-white" style={{fontWeight: "700",
-                                          fontSize: "24px", margin: "0 10px"}}>
-                                              Silver Fusion
-                                          </span>
-                                          <span>
-                                              <img height={'auto'}  src="/img/open.png" alt="" />
-                                          </span> 
-                                      </span>
-                                      <p className="text-light-grey" style={{fontWeight: "400"}}>Duration: 21 July 2022 - 30 August 2022</p>
+                            { positions?.filter( item => {
+                                if(item?.poolId == modalItem?.poolId){
+                                    return item;
+                                }
+                            }).map((val, index) => {
+                                return (<>
+                                    <div key={`item`+index} className="position-wrapper d-flex flex-wrap  flex-wrap  justify-content-between" style={{background: "#0E1725"
+                                    ,borderRadius: "8px", marginBottom: "32px", padding: "28px"}}>
+                                        
+                                        <div className="d-flex flex-wrap  flex-wrap  flex-column">
+                                            <span className="d-flex flex-wrap  flex-wrap  align-items-center">
+                                                <span className="">
+                                                    <img height={'auto'}  src="/img/spaceship.png" alt="" />
+                                                </span>
+                                                <span className="text-white" style={{fontWeight: "700",
+                                                fontSize: "24px", margin: "0 10px"}}>
+                                                    {val?.name}
+                                                </span>
+                                                <span>
+                                                    <img height={'auto'}  src={val?.image} alt="" />
+                                                </span> 
+                                            </span>
+                                            <p className="text-light-grey" style={{fontWeight: "400"}}>Duration: 21 July 2022 - 30 August 2022</p>
+                                        </div>
+                    
+        
+                                        <div className="d-flex flex-wrap  flex-wrap  flex-column" >
+                                            <span className="text-light-grey"> Your Stake</span>
+                                            <span> 
+                                                <span className="text-white" style={{fonWeight: "700",
+                                                fontSize: "1.5rem"}}>{val?.bal*1} FUSION</span>
+                                                {/* <span className="text-light-grey" style={{fontWeight: "400"}}>$9201</span> */}
+                                            </span>
+                                        </div>
+                    
+                    
                                   </div>
-              
+                           
+
   
-                                  <div className="d-flex flex-wrap  flex-wrap  flex-column" >
-                                      <span className="text-light-grey"> Your Stake</span>
-                                      <span> 
-                                          <span className="text-white" style={{fonWeight: "700",
-                                          fontSize: "1.5rem"}}>29,302 FUSION</span>
-                                          <span className="text-light-grey" style={{fontWeight: "400"}}>$9201</span>
-                                      </span>
-                                  </div>
-              
-              
-                              </div>
+                              <p key={`position`+index} style={{color: "rgba(175, 190, 208, 1)"}}>Your Rewards</p>
   
-                              <p style={{color: "rgba(175, 190, 208, 1)"}}>Your Positions</p>
-  
-                              <div className="d-flex flex-wrap  flex-wrap  flex-wrap " style={{marginBottom: "32px", fontWeight: "700",
+                              <div key={`bal`+index} className="d-flex flex-wrap  flex-wrap  flex-wrap " style={{marginBottom: "32px", fontWeight: "700",
                               fontSize: "36px", background: "#0E1725", borderRadius: "8px", padding: "28px"}}>
-                                  <span className="text-white">2,291 FSN</span>
+                                  <span className="text-white">{val?.reward_bal * 1} FSN</span>
                               </div>
+    
+                              <div key={`warn`+index} className="notice d-flex flex-wrap  flex-wrap " style={{background: "#0E1725", borderRadius: "8px" ,marginBottom: "32px", padding: "18px 33px"}}>
+                                  <div className="img d-flex flex-wrap  flex-wrap  justify-content-center align-items-center" style={{position: "relative", marginRight: "25px"}}>
+                                      <img height={'auto'}   style={{position: "absolute"}} src="/img/exclaim.png" alt="" />
+                                      <img height={'auto'}  src="/img/shield.png" alt="" />
   
-                              <div className="d-flex flex-wrap  flex-wrap  flex-wrap ">
+                                  </div>
+                                  <div className="d-flex flex-wrap  flex-wrap  flex-column">
+                                      {/* <span style={{fontWeight: "700", fontSize: "1.1rem"}}>Staking $1000 for 30 days</span> */}
+                                      <span style={{color:"#AFBED0", fontWeight: "400"}}>There’s a 20% penalty for premature withdrawal</span>
+                                  </div>
+                              </div>
+
+                              <div key={`claim`+index} className="d-flex flex-wrap  flex-wrap  flex-wrap ">
                                   <button className="btn flex-grow-1 stake-btn" style={{fontWeight: "800", fontSize: "24px"}} onClick={()=>{claim_reward(pId)}}>
                                       Claim reward
                                   </button>
                               </div>
-  
+                            </>)
+                            }) }
                           </div>
                         </div>
                         
