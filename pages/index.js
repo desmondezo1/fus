@@ -363,8 +363,8 @@ export default function Home() {
                   Fusion Staking Pool
               </h2>
   
-              <div className="staking-pool-table-wrapper">
-                  <table className="table table-responsive text-white">
+              <div className="staking-pool-table-wrapper table-responsive">
+                  <table className="table text-white">
                       <thead style={{border: "0"}}>
                         <tr className="text-grey">
                           <th scope="col">Staking Category</th>
