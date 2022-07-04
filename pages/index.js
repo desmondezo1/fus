@@ -73,7 +73,7 @@ export default function Home() {
         let token = await getTokenContract();
         try {
             
-            let approve = await token.approve( "0x2189049962f3808216932403974307451606947B", amount ).then( async res => {
+            let approve = await token.approve( "0x24C7903667350C309E1525eF02e80deA6a2Be7bC", amount ).then( async res => {
                 if(res){
                 let stake = await contract.stake( amount, pId  );
                 }
@@ -98,7 +98,7 @@ export default function Home() {
     }
 
     function addDays(timestamp, days) {
-        var result = new Date(date);
+        var result = new Date(timestamp);
         result.setDate(result.getDate() + days);
         return result;
     }
