@@ -70,8 +70,8 @@ export const getTokenContract = async () => {
   return tokencontract;
 }
 
-export const convertToWei = (val) => {
-  let res = ethers.utils.parseEther(val);
+export const convertToWei = async (val) => {
+  let res = await ethers.utils.parseEther(val);
   return res;
 }
 export const convertToEther = (val) => {

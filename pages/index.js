@@ -66,7 +66,7 @@ export default function Home() {
             return;
         }
 
-        amount = convertToWei(amount);
+        amount = await convertToWei(amount);
         console.log({amount, pId})
 
         let contract = await getContract();
@@ -97,24 +97,38 @@ export default function Home() {
 
     }
 
-    function addDays(timestamp, days) {
-        var result = new Date(timestamp);
-        result.setDate(result.getDate() + days);
-        return result;
+    function formatDate(timestamp, days=null) {
+        let monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        let dateObj = new Date(timestamp * 1000);
+        if (days == null) {
+            let month = monthNames[dateObj.getMonth() + 1];
+            let year = dateObj.getFullYear();
+            let date =  dateObj.getDate();
+            return `${date} ${month} ${year}`;
+        }
+        dateObj.setDate(dateObj.getDate() + days);
+        let month = monthNames[dateObj.getMonth() + 1];
+        let year = dateObj.getFullYear();
+        let date =  dateObj.getDate();
+        return `${date} ${month} ${year}`;
+
+        // return dateObj;
     }
   
     const getPositions = async () => {
         let contract = await getContract();
         let i;
         let newArr = [];
+        
         for (let i = 0; i < stakingpools.length; i++) {
             let stakingBalance = await contract.getUserStakingBalance(+stakingpools[i].poolId, account);
             if(stakingBalance > 0) {
                 stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
                 let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId);
                 let stakeTime = await contract.getLastStakeDate( stakingpools[i].poolId,account);
-                let startDate = new Date(stakeTime);
-                let endDate =  addDays(stakeTime, stakingpools[i].duration);
+                stakeTime = stakeTime.toString();
+                let startDate = formatDate(+stakeTime);
+                let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
                 stakingpools[i].date = startDate + " - " + endDate;
                 stakingpools[i].reward_bal = convertToEther(reward_bal);
                 newArr.push(stakingpools[i])
@@ -132,10 +146,6 @@ export default function Home() {
     }
 
     const setModal = useStore( state => state.setModalData )
-    // const openModal = () => {
-    //     var myModalEl = document.querySelector('#exampleModalCenter')
-    //     var modal = bootstrap.Modal.getOrCreateInstance(myModalEl)
-    // }
 
     const disconnectWallet = async () =>{
         disconnect();
@@ -283,7 +293,7 @@ export default function Home() {
                                     <img  height={'auto'} src="/img/open.png" alt="" />
                                 </span> 
                             </span>
-                            <p className="text-light-grey">Duration: 21 July 2022 - 30 August 2022</p>
+                            <p className="text-light-grey"> Duration:{" "} {item?.date}</p>
                         </div>
 
                         <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
@@ -298,7 +308,7 @@ export default function Home() {
                             <span>
                                 <span className="text-white" style={{
                                 fontWeight: "700",
-                                fontSize: "1.5rem"}}>{item?.bal} FUSION</span>
+                                fontSize: "1.5rem"}}>{item?.bal * 1} FUSION</span>
                                 <span className="text-light-grey"></span>
                             </span>
                         </div>
@@ -501,7 +511,7 @@ export default function Home() {
                                                     <img height={'auto'}  src={val?.image} alt="" />
                                                 </span> 
                                             </span>
-                                            <p className="text-light-grey" style={{fontWeight: "400"}}>Duration: 21 July 2022 - 30 August 2022</p>
+                                            <p className="text-light-grey" style={{fontWeight: "400"}}>Duration: {" "} {val?.date}</p>
                                         </div>
                     
         
