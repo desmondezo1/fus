@@ -24,6 +24,7 @@ export default function Home() {
     const [pId, setpoolId] = useState();
     const [positions, setpositions] = useState();
     const [userBalance, setUserBalance] = useState();
+    const [totalStaked, setTotalStaked] = useState();
 
     const setVals = async () => {
         if(modalItem){           
@@ -32,7 +33,11 @@ export default function Home() {
         }
         
     }
-
+    const getTotalstkd = async () =>{
+        let contract = await getContract();
+        let totalStkd = await contract.getTotalStaked();
+        setTotalStaked(convertToEther(totalStkd));
+    }
     const setBal = async () => {
         let bal = await getWalletBalance();
          setUserBalance(bal);
@@ -40,6 +45,7 @@ export default function Home() {
 
     useEffect(()=>{
         setVals();
+        getTotalstkd();
         if(account){
             getPositions();
             setBal();
@@ -60,11 +66,20 @@ export default function Home() {
     const stake = async ( ) => {
         
         let amount = document.getElementById("amtInput").value;
-        
+        if (!account) {
+            alert(`Please connect wallet`);
+            return;
+        }
         if(amount < inputAmt){
             alert(`Input Min of ${inputAmt}`);
             return;
         }
+        console.log({amount,userBalance});
+        if (amount > userBalance) {
+            alert(`You don't have enough tokens for this transaction`);
+            return;
+        }
+
 
         amount = await convertToWei(amount);
         console.log({amount, pId})
@@ -72,15 +87,19 @@ export default function Home() {
         let contract = await getContract();
         let token = await getTokenContract();
         try {
-            
             let approve = await token.approve( "0x24C7903667350C309E1525eF02e80deA6a2Be7bC", amount ).then( async res => {
                 if(res){
                 let stake = await contract.stake( amount, pId  );
                 }
             });
 
-        } catch (error) {
-           console.log(error)
+        } catch (e) {
+            const data = e.data;
+            const txHash = Object.keys(data)[0]; 
+            const reason = data[txHash].reason;
+        
+            console.log(reason); 
+        //    console.log(error)
         }
       
     }
@@ -121,17 +140,26 @@ export default function Home() {
         let newArr = [];
         
         for (let i = 0; i < stakingpools.length; i++) {
-            let stakingBalance = await contract.getUserStakingBalance(+stakingpools[i].poolId, account);
-            if(stakingBalance > 0) {
-                stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
-                let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId);
-                let stakeTime = await contract.getLastStakeDate( stakingpools[i].poolId,account);
-                stakeTime = stakeTime.toString();
-                let startDate = formatDate(+stakeTime);
-                let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
-                stakingpools[i].date = startDate + " - " + endDate;
-                stakingpools[i].reward_bal = convertToEther(reward_bal);
-                newArr.push(stakingpools[i])
+            try {
+                 let stakingBalance = await contract.getUserStakingBalance(+stakingpools[i].poolId, account);
+                if(stakingBalance > 0) {
+                    stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
+                    let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId);
+                    let stakeTime = await contract.getLastStakeDate( stakingpools[i].poolId,account);
+                    stakeTime = stakeTime.toString();
+                    let startDate = formatDate(+stakeTime);
+                    let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
+                    stakingpools[i].date = startDate + " - " + endDate;
+                    stakingpools[i].reward_bal = convertToEther(reward_bal);
+                    newArr.push(stakingpools[i])
+                }
+            } catch (e) {
+                const data = e.data;
+                const txHash = Object.keys(data)[0]; 
+                const reason = data[txHash].reason;
+            
+                console.log(reason); 
+                // console.log(error);
             }
         }
 
@@ -210,7 +238,7 @@ export default function Home() {
                   <div className="portfolio_value d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between">
                       <span className="value_wrapper d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center">
                           <span className="p_value_label">Portfolio Value : &nbsp;</span>
-                          <span className="p_value"> $54,342</span>
+                          <span className="p_value"> {!userBalance?"0":userBalance} FSN</span>
                       </span>
   
                       <button className="btn buy-coin-btn text-white">
@@ -220,7 +248,7 @@ export default function Home() {
               </div>
   
               <div className=" container other-tokens d-flex flex-wrap  flex-wrap  flex-wrap ">
-                  <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                  {/* <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                       <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
                           <span className="eclipse" id="eclipse_green"></span>
                           <span> Other Tokens </span> 
@@ -230,19 +258,19 @@ export default function Home() {
                           $34,920
                       </span>
   
-                  </span>
+                  </span> */}
   
                   <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                       <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
                           <span className="eclipse" id="eclipse_green"></span>
-                          <span> Fusion </span> 
+                          <span>Total Fusion Staked </span> 
                       </span>
                       <span className="tokenValue">
-                          $10,012
+                         {!totalStaked? "0": totalStaked * 1}
                       </span>
                   </span>
   
-                  <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                  {/* <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                       <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
                           <span className="eclipse" id="eclipse_blue"></span>
                           <span> Staked </span> 
@@ -250,9 +278,9 @@ export default function Home() {
                       <span className="tokenValue">
                           $9,210
                       </span>
-                  </span>
+                  </span> */}
   
-                  <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                  {/* <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                       <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
                           <span className="eclipse" id="eclipse_purple"></span>
                           <span> Claimable </span> 
@@ -260,7 +288,7 @@ export default function Home() {
                       <span className="tokenValue">
                           $34,920
                       </span>
-                  </span>
+                  </span> */}
               </div>
   
               <div className="container progress-container">
@@ -272,6 +300,7 @@ export default function Home() {
                   </div>
   
                   <p style={{color: "#AFBED0", marginBottom: "16px"}}>Your Positions</p>
+                  { !positions || positions?.length == 0 ?(<p style={{color: "#fff"}}> You currently have no stake in any pool </p>) : "" }
                     { !positions ? "" : (
 
                        positions.map((item, index) => {
@@ -340,7 +369,7 @@ export default function Home() {
                         <tr className="text-grey">
                           <th scope="col">Staking Category</th>
                           <th scope="col">Duration</th>
-                          <th scope="col">Monthly ROI</th>
+                          <th scope="col">APY</th>
                           <th scope="col">Minimum Deposit</th>
                           <th scope="col">Action</th>
                         </tr>
@@ -364,7 +393,7 @@ export default function Home() {
                               <span>{pool?.roi}</span>
                           </td>
                           <td>
-                              <span>{pool?.min_deposit} (FUSION)</span>
+                              <span>{pool?.min_deposit} FSN</span>
                           </td>
                           <td>
                               
@@ -391,8 +420,10 @@ export default function Home() {
               <div className="modal-content">
                   <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalCenterTitle">Stake Fusion</h5>
-                  <button type="button" className="btn-close close" data-bs-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true"> <img height={'auto'} src="/img/ex.svg" alt="" /></span>
+                  <button type="button" className="btn-close btn-close-white" style={{fontSize: "1.3rem"}} data-bs-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true"> 
+                      {/* <img height={'auto'} src="/img/ex.svg" alt="" /> */}
+                      </span>
                   </button>
                   </div>
                   <div className="modal-body">
@@ -415,7 +446,7 @@ export default function Home() {
                                       Amount
                                   </span>
                                   <span>
-                                      Fusion Balance: <span style={{fontWeight:"500"}}>{userBalance}</span>
+                                      Fusion Balance: <span style={{fontWeight:"500"}}>{!userBalance?"0":userBalance}</span>
                                   </span>
                               </div>
   
@@ -424,7 +455,7 @@ export default function Home() {
                               borderRadius: "8px",
                               padding: "0 28.5px",
                               fontWeight: "700",
-                              fontSize: "1.8rem",
+                              fontSize: "1.5rem",
                               marginBottom: "32px"
                               }}>
                                   {/* <span >20,000 <small>($1000)</small></span> */}
@@ -433,7 +464,7 @@ export default function Home() {
                                     borderRadius: "8px",
                                     padding: "28.5px",
                                     fontWeight: "700",
-                                    fontSize: "1.8rem",
+                                    fontSize: "1.3rem",
                                     border: "none",
                                     width: "100%",
                                     outline: "none",
@@ -445,7 +476,7 @@ export default function Home() {
                               <div className="staking-category d-flec flex-column" style={{padding: "20px", background: "#0E1725", borderRadius: "9.75964px", marginBottom: "32px"}}>
                                   <span className="d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>Staking Category</span>
-                                      <span>Silver Pool</span>
+                                      <span>{modalItem?.name}</span>
                                   </span>
   
                                   <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
@@ -454,7 +485,7 @@ export default function Home() {
                                               <img   height="20px" src="/img/info.png" alt="" />
                                           </span>
                                       </span>
-                                      <span>30 Days</span>
+                                      <span>{modalItem?.duration} Days</span>
                                   </span>
                                   {/* <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>Transaction Fee</span>
@@ -488,7 +519,10 @@ export default function Home() {
                           {/* <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div> */}
                           <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
   
-                              <p style={{color: "rgba(175, 190, 208, 1)"}}>Your Positions</p>
+                              <p style={{color: "rgba(175, 190, 208, 1)"}}>Your Positions</p> 
+                              
+                            {!positions || positions?.length == 0 ? (<p> You currently have no stake in any pool </p>) : "" }
+                            
                             { positions?.filter( item => {
                                 if(item?.poolId == modalItem?.poolId){
                                     return item;
@@ -555,6 +589,7 @@ export default function Home() {
                               </div>
                             </>)
                             }) }
+                            
                           </div>
                         </div>
                         
