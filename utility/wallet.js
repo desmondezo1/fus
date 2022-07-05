@@ -8,7 +8,7 @@ import * as tokenABI from './testToken.json'
 //import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 
 //const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'; //replace ID with yours
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'; //replace ID with yours
 
 const providerOptions = {
@@ -58,7 +58,7 @@ export const getContract = async ()=> {
   const instance = await web3Modal.connect();
   const provider = new ethers.providers.Web3Provider(instance);
   const signer = provider.getSigner();
-  const staking = new ethers.Contract("0x24C7903667350C309E1525eF02e80deA6a2Be7bC", contractABI.abi, signer);
+  const staking = new ethers.Contract(CONTRACT_ADDRESS, contractABI.abi, signer);
   return staking;
 }
 
@@ -88,4 +88,4 @@ export const getWalletBalance = async (address) =>{
 }
 
 
-export default { connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther };
+export default { connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };

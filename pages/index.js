@@ -8,7 +8,7 @@ import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import { Modal } from '../components/modal'
-import { getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther } from '../utility/wallet'
+import { getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -21,10 +21,12 @@ export default function Home() {
     const [account , setAccount] = useState();
     const [modalItem , setModalItem] = useState();
     const [inputAmt, setAmount] = useState();
+    const [warnAmt, setWarnAmount] = useState();
     const [pId, setpoolId] = useState();
     const [positions, setpositions] = useState();
     const [userBalance, setUserBalance] = useState();
     const [totalStaked, setTotalStaked] = useState();
+    const [totalStakeHolders, setTotalStakeHolders] = useState();
 
     const setVals = async () => {
         if(modalItem){           
@@ -36,7 +38,9 @@ export default function Home() {
     const getTotalstkd = async () =>{
         let contract = await getContract();
         let totalStkd = await contract.getTotalStaked();
+        let holders = await contract.getTotalStakeHolderCount();
         setTotalStaked(convertToEther(totalStkd));
+        setTotalStakeHolders(convertToEther(holders));
     }
     const setBal = async () => {
         let bal = await getWalletBalance();
@@ -87,19 +91,14 @@ export default function Home() {
         let contract = await getContract();
         let token = await getTokenContract();
         try {
-            let approve = await token.approve( "0x24C7903667350C309E1525eF02e80deA6a2Be7bC", amount ).then( async res => {
+            let approve = await token.approve( CONTRACT_ADDRESS, amount ).then( async res => {
                 if(res){
                 let stake = await contract.stake( amount, pId  );
                 }
             });
 
-        } catch (e) {
-            const data = e.data;
-            const txHash = Object.keys(data)[0]; 
-            const reason = data[txHash].reason;
-        
-            console.log(reason); 
-        //    console.log(error)
+        } catch (error) {
+            console.log(error)
         }
       
     }
@@ -150,16 +149,21 @@ export default function Home() {
                     let startDate = formatDate(+stakeTime);
                     let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
                     stakingpools[i].date = startDate + " - " + endDate;
+                    stakingpools[i].end_date = endDate;
                     stakingpools[i].reward_bal = convertToEther(reward_bal);
                     newArr.push(stakingpools[i])
                 }
-            } catch (e) {
-                const data = e.data;
-                const txHash = Object.keys(data)[0]; 
-                const reason = data[txHash].reason;
+            } catch (err) {
+                // let message = JSON.parse(err.message.substring(56).trim().replace("'", "")).value.data.data;
+                // console.log(err.message.substring(56).trim().replace("'", ""))
+                // console.log(message[Object.keys(message)[0]].reason);
+
+                // const data = e.data;
+                // const txHash = Object.keys(data)[0]; 
+                // const reason = data[txHash].reason;
             
-                console.log(reason); 
-                // console.log(error);
+                // console.log(reason); 
+                console.log(error);
             }
         }
 
@@ -248,17 +252,17 @@ export default function Home() {
               </div>
   
               <div className=" container other-tokens d-flex flex-wrap  flex-wrap  flex-wrap ">
-                  {/* <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                  <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                       <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
                           <span className="eclipse" id="eclipse_green"></span>
-                          <span> Other Tokens </span> 
+                          <span> Total Stakers </span> 
                       </span>
   
                       <span className="tokenValue">
-                          $34,920
+                          {!totalStakeHolders? 0: totalStakeHolders * 1}
                       </span>
   
-                  </span> */}
+                  </span>
   
                   <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
                       <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
@@ -459,7 +463,7 @@ export default function Home() {
                               marginBottom: "32px"
                               }}>
                                   {/* <span >20,000 <small>($1000)</small></span> */}
-                                  <input type="text" id="amtInput" placeholder={`Min ${inputAmt}`} style={{
+                                  <input type="number" id="amtInput" placeholder={`Min ${inputAmt}`} onChange={(e)=>{  setWarnAmount(e.target.value)}} style={{
                                     background: "#0E1725",
                                     borderRadius: "8px",
                                     padding: "28.5px",
@@ -502,7 +506,7 @@ export default function Home() {
   
                                   </div>
                                   <div className="d-flex flex-wrap  flex-wrap  flex-column">
-                                      <span style={{fontWeight: "700", fontSize: "1.1rem"}}>Staking $1000 for 30 days</span>
+                                      <span style={{fontWeight: "700", fontSize: "1.1rem"}}>Staking {!warnAmt?0:warnAmt} FSN for {!modalItem?.duration? 0: modalItem?.duration} days</span>
                                       <span style={{color:"#AFBED0", fontWeight: "400"}}>There’s a 20% penalty for premature withdrawal</span>
                                   </div>
                               </div>
@@ -570,15 +574,15 @@ export default function Home() {
                                   <span className="text-white">{val?.reward_bal * 1} FSN</span>
                               </div>
     
-                              <div key={`warn`+index} className="notice d-flex flex-wrap  flex-wrap " style={{background: "#0E1725", borderRadius: "8px" ,marginBottom: "32px", padding: "18px 33px"}}>
+                              <div key={`warn`+index} className="notice d-flex " style={{background: "#0E1725", borderRadius: "8px" ,marginBottom: "32px", padding: "18px 33px"}}>
                                   <div className="img d-flex flex-wrap  flex-wrap  justify-content-center align-items-center" style={{position: "relative", marginRight: "25px"}}>
                                       <img height={'auto'}   style={{position: "absolute"}} src="/img/exclaim.png" alt="" />
                                       <img height={'auto'}  src="/img/shield.png" alt="" />
   
                                   </div>
                                   <div className="d-flex flex-wrap  flex-wrap  flex-column">
-                                      {/* <span style={{fontWeight: "700", fontSize: "1.1rem"}}>Staking $1000 for 30 days</span> */}
-                                      <span style={{color:"#AFBED0", fontWeight: "400"}}>There’s a 20% penalty for premature withdrawal</span>
+                                      <span style={{fontWeight: "700", fontSize: "1.1rem"}}>Due date to claim rewards is {val?.end_date}</span>
+                                      <span style={{color:"#AFBED0", fontWeight: "400"}}>Premature withdrawal will make you lose all rewards in this pool, and 20% of your staked tokens</span>
                                   </div>
                               </div>
 
