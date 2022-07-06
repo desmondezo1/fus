@@ -3,7 +3,8 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
-import {toast, ToastContainer } from 'react-nextjs-toast';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { connectWallet, disconnect} from "../utility/wallet"
 import useStore from "../utility/store"
 import { useEffect, useState } from "react"
@@ -41,7 +42,7 @@ export default function Home() {
         let totalStkd = await contract.getTotalStaked();
         let holders = await contract.getTotalStakeHolderCount();
         setTotalStaked(convertToEther(totalStkd));
-        setTotalStakeHolders(convertToEther(holders));
+        setTotalStakeHolders(holders);
     }
     const setBal = async () => {
         let bal = await getWalletBalance();
@@ -72,17 +73,19 @@ export default function Home() {
         
         let amount = document.getElementById("amtInput").value;
         if (!account) {
-            // toast.info(`Please connect wallet`)
-            alert();
+            toast.info(`Please connect wallet`)
+            // alert();
             return;
         }
         if(amount < inputAmt){
-            alert(`Input Min of ${inputAmt}`);
+            toast.info(`Input Min of ${inputAmt}`)
+            // alert();
             return;
         }
         console.log({amount,userBalance});
         if (amount > userBalance) {
-            alert(`You don't have enough tokens for this transaction`);
+            toast.error(`You don't have enough tokens for this transaction`);
+            // alert();
             return;
         }
 
@@ -100,7 +103,7 @@ export default function Home() {
             });
 
         } catch (error) {
-            console.log(error)
+            toast.error(error)
         }
       
     }
@@ -112,7 +115,9 @@ export default function Home() {
         try {
             let claimreward = await contract.claimReward( ppid );
         } catch (error) {
-            alert('You have no stake in this pool')
+            toast.error(error)
+            // alert(error)
+            // alert('You have no stake in this pool')
         }
 
     }
@@ -156,6 +161,7 @@ export default function Home() {
                     newArr.push(stakingpools[i])
                 }
             } catch (err) {
+                toast.error(err)
                 // let message = JSON.parse(err.message.substring(56).trim().replace("'", "")).value.data.data;
                 // console.log(err.message.substring(56).trim().replace("'", ""))
                 // console.log(message[Object.keys(message)[0]].reason);
@@ -165,7 +171,8 @@ export default function Home() {
                 // const reason = data[txHash].reason;
             
                 // console.log(reason); 
-                console.log(error);
+                // alert(err);
+                // console.log(err);
             }
         }
 
@@ -191,7 +198,7 @@ export default function Home() {
       <header>
       <ToastContainer />
           <nav className="navbar navbar-expand-lg  navbar-dark">
-              <a className="navbar-brand" href="#">
+              <a  className="navbar-brand" href="#">
                   <div>
                       <span className="flogo">
                           <img height={'auto'}  src="/img/Vector.png" alt="" />
