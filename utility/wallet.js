@@ -39,6 +39,11 @@ export const disconnect = async () => {
   };
   
 
+export const getProvider = async () => {
+  const provider = await web3Modal.connect();
+  return provider;
+}
+
 export const connectWallet = async () => {
 
     try {
@@ -67,7 +72,7 @@ export const getContract = async ()=> {
 export const getTokenContract = async () => {
   const instance = await web3Modal.connect();
   const provider = new ethers.providers.Web3Provider(instance);
-  
+
   // Subscribe to chainId change
   provider.on("chainChanged", (CHAIN_ID) => {
     console.log(CHAIN_ID);
@@ -96,4 +101,4 @@ export const getWalletBalance = async (address) =>{
 }
 
 
-export default { connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
+export default { getProvider, connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };

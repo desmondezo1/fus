@@ -10,7 +10,7 @@ import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import { Modal } from '../components/modal'
-import { getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
+import { getContract, getProvider, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -29,7 +29,9 @@ export default function Home() {
     const [userBalance, setUserBalance] = useState();
     const [totalStaked, setTotalStaked] = useState();
     const [totalStakeHolders, setTotalStakeHolders] = useState();
-
+    const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
+    const setModal = useStore( state => state.setModalData )
+    
     const setVals = async () => {
         if(modalItem){           
             setAmount(modalItem.min_deposit);
@@ -49,7 +51,11 @@ export default function Home() {
          setUserBalance(bal);
     }
 
-    useEffect(()=>{
+    useEffect( ()=>{
+        if (!checknetwork()) {
+            return;
+         }
+      
         setVals();
         getTotalstkd();
 
@@ -62,7 +68,7 @@ export default function Home() {
             if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
          })()
         
-    })
+    },[])
 
     function getRPCErrorMessage(err){
         var open = err.stack.indexOf('{')
@@ -173,17 +179,41 @@ export default function Home() {
 
         setpositions(newArr)
     }
+
+    const checknetwork = () => {
+        if (typeof window !== "undefined") {
+            if (+window.ethereum.networkVersion !== +CHAIN_ID) {
+                console.log('enters',window.ethereum.networkVersion , CHAIN_ID)
+                console.log(window.ethereum.networkVersion)
+                console.log( CHAIN_ID)
+                    if (+CHAIN_ID == 56) {
+                        toast.info("Please switch network to BSC mainet ");
+                    }
+
+                    if(+CHAIN_ID == 97){
+                        toast.info("Please switch network to BSC Testnet ");
+                    }
+                return false;
+            }
+
+            return true;
+         }
+    }
   
     const connectWall = async () =>{
+         if (!checknetwork()) {
+            return;
+         }
 
          let wallet =  await connectWallet();
             if(wallet){
             setAccount(wallet[0]);
+            toast.success('connected!')
             }  
 
     }
 
-    const setModal = useStore( state => state.setModalData )
+   
 
     const disconnectWallet = async () =>{
         disconnect();
