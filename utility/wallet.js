@@ -42,13 +42,14 @@ export const connectWallet = async () => {
 
     try {
         const provider = await web3Modal.connect();
+        // const provider = await web3Modal.toggleModal();
         const library = new ethers.providers.Web3Provider(provider);
         const accounts = await library.listAccounts();
         const network = await library.getNetwork();  
         return accounts;
 
     } catch (error) {
-        console.log(error)  
+        console.log(error.message)  
     }
  
 }

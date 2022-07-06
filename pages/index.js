@@ -108,7 +108,7 @@ export default function Home() {
             });
 
         } catch (error) {
-            toast.error(error)
+            toast.error(error.message)
         }
       
     }
@@ -120,7 +120,7 @@ export default function Home() {
         try {
             let claimreward = await contract.claimReward( ppid );
         } catch (error) {
-            toast.error(error)
+            toast.error(error.mesage)
             // alert(error)
             // alert('You have no stake in this pool')
         }
@@ -166,7 +166,7 @@ export default function Home() {
                     newArr.push(stakingpools[i])
                 }
             } catch (err) {
-                toast.error(err)
+                toast.error(err.message)
     
             }
         }
@@ -175,10 +175,12 @@ export default function Home() {
     }
   
     const connectWall = async () =>{
-        let wallet =  await connectWallet();
-        if(wallet){
-          setAccount(wallet[0]);
-        }
+
+         let wallet =  await connectWallet();
+            if(wallet){
+            setAccount(wallet[0]);
+            }  
+
     }
 
     const setModal = useStore( state => state.setModalData )
@@ -188,6 +190,11 @@ export default function Home() {
         setAccount();
         localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
     }
+
+    const onChange = event => {
+        console.log("onChange called");
+        setWarnAmount(event.target.value);
+    };
     
 
   return (<>
@@ -469,7 +476,7 @@ export default function Home() {
                               marginBottom: "32px"
                               }}>
                                   {/* <span >20,000 <small>($1000)</small></span> */}
-                                  <input type="number" id="amtInput" placeholder={`Min ${inputAmt}`} onChange={(e)=>{  setWarnAmount(e.target.value)}} style={{
+                                  <input type="number" id="amtInput" placeholder={`Min ${inputAmt}`} onChange={onChange} style={{
                                     background: "#0E1725",
                                     borderRadius: "8px",
                                     padding: "28.5px",
