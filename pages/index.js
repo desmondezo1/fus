@@ -52,10 +52,15 @@ export default function Home() {
     useEffect(()=>{
         setVals();
         getTotalstkd();
+
         if(account){
             getPositions();
             setBal();
         }
+
+        (async () => {
+            if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
+         })()
         
     })
 
@@ -180,7 +185,8 @@ export default function Home() {
 
     const disconnectWallet = async () =>{
         disconnect();
-        setAccount()
+        setAccount();
+        localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
     }
     
 
