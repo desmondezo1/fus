@@ -162,17 +162,7 @@ export default function Home() {
                 }
             } catch (err) {
                 toast.error(err)
-                // let message = JSON.parse(err.message.substring(56).trim().replace("'", "")).value.data.data;
-                // console.log(err.message.substring(56).trim().replace("'", ""))
-                // console.log(message[Object.keys(message)[0]].reason);
-
-                // const data = e.data;
-                // const txHash = Object.keys(data)[0]; 
-                // const reason = data[txHash].reason;
-            
-                // console.log(reason); 
-                // alert(err);
-                // console.log(err);
+    
             }
         }
 
