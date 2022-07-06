@@ -82,13 +82,13 @@ export default function Home() {
             // alert();
             return;
         }
-        if(amount < inputAmt){
+        if(+amount < +inputAmt){
             toast.info(`Input Min of ${inputAmt}`)
             // alert();
             return;
         }
         console.log({amount,userBalance});
-        if (amount > userBalance) {
+        if (+amount > +userBalance) {
             toast.error(`You don't have enough tokens for this transaction`);
             // alert();
             return;
