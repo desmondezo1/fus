@@ -9,6 +9,7 @@ import * as tokenABI from './testToken.json'
 
 //const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'; //replace ID with yours
 export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'; //replace ID with yours
 
 const providerOptions = {
@@ -66,6 +67,12 @@ export const getContract = async ()=> {
 export const getTokenContract = async () => {
   const instance = await web3Modal.connect();
   const provider = new ethers.providers.Web3Provider(instance);
+  
+  // Subscribe to chainId change
+  provider.on("chainChanged", (CHAIN_ID) => {
+    console.log(CHAIN_ID);
+  });
+
   const signer = provider.getSigner();
   const tokencontract = new ethers.Contract("0x82282A97D0EF41e0631046273C187Eb7AE7742B9", tokenABI.abi, signer);
   return tokencontract;
