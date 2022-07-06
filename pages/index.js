@@ -3,6 +3,7 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
+import {toast, ToastContainer } from 'react-nextjs-toast';
 import { connectWallet, disconnect} from "../utility/wallet"
 import useStore from "../utility/store"
 import { useEffect, useState } from "react"
@@ -71,7 +72,8 @@ export default function Home() {
         
         let amount = document.getElementById("amtInput").value;
         if (!account) {
-            alert(`Please connect wallet`);
+            // toast.info(`Please connect wallet`)
+            alert();
             return;
         }
         if(amount < inputAmt){
@@ -187,6 +189,7 @@ export default function Home() {
 
   return (<>
       <header>
+      <ToastContainer />
           <nav className="navbar navbar-expand-lg  navbar-dark">
               <a className="navbar-brand" href="#">
                   <div>
@@ -491,12 +494,12 @@ export default function Home() {
                                       </span>
                                       <span>{modalItem?.duration} Days</span>
                                   </span>
-                                  {/* <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
-                                      <span>Transaction Fee</span>
-                                      <span>$2 <span style={{color:"rgba(171, 146, 252, 1)"}}> (Fast) </span> <span>
-                                          <img   height={'auto'} src="/img/downarrow.png" alt="" />
+                                  <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
+                                      <span>APY</span>
+                                      <span>{modalItem?.roi} <span style={{color:"rgba(171, 146, 252, 1)"}}>  </span> <span>
+                                          {/* <img   height={'auto'} src="/img/downarrow.png" alt="" /> */}
                                       </span> </span>
-                                  </span> */}
+                                  </span>
                               </div>
   
                               <div className="notice d-flex flex-wrap  flex-wrap " style={{background: "#0E1725", borderRadius: "8px" ,marginBottom: "32px", padding: "18px 33px"}}>
