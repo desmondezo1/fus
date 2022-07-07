@@ -182,8 +182,11 @@ export default function Home() {
 
     const checknetwork = () => {
         if (typeof window !== "undefined") {
-            if (+window.ethereum.networkVersion !== +CHAIN_ID) {
-                console.log('enters',window.ethereum.networkVersion , CHAIN_ID)
+            if (!window.ethereum?.networkVersion) {
+                return;
+            }
+            if (+window.ethereum?.networkVersion !== +CHAIN_ID) {
+                console.log('enters',window.ethereum?.networkVersion , CHAIN_ID)
                 console.log(window.ethereum.networkVersion)
                 console.log( CHAIN_ID)
                     if (+CHAIN_ID == 56) {
