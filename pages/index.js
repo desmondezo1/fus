@@ -29,6 +29,7 @@ export default function Home() {
     const [userBalance, setUserBalance] = useState();
     const [totalStaked, setTotalStaked] = useState();
     const [totalStakeHolders, setTotalStakeHolders] = useState();
+    const [siteMessage, setSiteMessage] = useState();
     const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
     const setModal = useStore( state => state.setModalData )
     
@@ -57,11 +58,12 @@ export default function Home() {
         //  }
 
         if(account){
-            checknetwork();
-            getPositions();
-            setBal();   
-            setVals();
-            getTotalstkd();
+            if (checknetwork(false)) {
+                getPositions();
+                setBal();   
+                setVals();
+                getTotalstkd();
+            }
         }
 
          (async () => {
@@ -69,6 +71,13 @@ export default function Home() {
         })()
        
     },[])
+
+    useEffect( ()=>{
+        if (!checknetwork(false)) {
+            setSiteMessage(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
+            console.log(siteMessage);
+        }
+    })
 
     function getRPCErrorMessage(err){
         var open = err.stack.indexOf('{')
@@ -152,7 +161,7 @@ export default function Home() {
     }
   
     const getPositions = async () => {
-        checknetwork();
+        checknetwork(false);
         let contract = await getContract();
         let i;
         let newArr = [];
@@ -181,7 +190,7 @@ export default function Home() {
         setpositions(newArr)
     }
 
-    const checknetwork = () => {
+    const checknetwork = (toast=true) => {
         if (typeof window !== "undefined") {
             if (!window.ethereum?.networkVersion) {
                 return;
@@ -191,11 +200,17 @@ export default function Home() {
                 console.log(window.ethereum.networkVersion)
                 console.log( CHAIN_ID)
                     if (+CHAIN_ID == 56) {
-                        toast.info("Please switch network to BSC mainet ");
+                        if(toast){
+                              toast.info("Please switch network to BSC mainet ");
+                        }
+                      
                     }
 
                     if(+CHAIN_ID == 97){
-                        toast.info("Please switch network to BSC Testnet ");
+                        if (toast) {
+                            toast.info("Please switch network to BSC Testnet ");
+                        }
+                        
                     }
                 return false;
             }
@@ -234,6 +249,7 @@ export default function Home() {
   return (<>
       <header>
       <ToastContainer />
+      {!siteMessage? "" : (<div className='d-flex justify-contents-center align-items-center' style={{display: "flex", background: "orange", padding: "20px"}}><b>{siteMessage}</b></div>)}
           <nav className="navbar navbar-expand-lg  navbar-dark">
               <a  className="navbar-brand" href="#">
                   <div>
