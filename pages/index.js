@@ -236,7 +236,7 @@ export default function Home() {
         //  if (!checknetwork()) {
         //     return;
         //  }
-        // disconnectWallet();
+        disconnectWallet();
          let wallet =  await connectWallet();
             if(wallet){
             setAccount(wallet[0]);
