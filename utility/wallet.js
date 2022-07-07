@@ -52,6 +52,36 @@ export const getProvider = async () => {
   return provider;
 }
 
+export const switchNetwork = async () =>{
+  if (typeof window !== "undefined") {
+    console.log('it entersheretoo')
+    if (window.ethereum.networkVersion !== CHAIN_ID) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: ethers.utils.hexlify(CHAIN_ID) }]
+        });
+      } catch (err) {
+          // This error code indicates that the chain has not been added to MetaMask
+        if (err.code === 4902) {
+          console.log(err.message)
+          // await window.ethereum.request({
+          //   method: 'wallet_addEthereumChain',
+          //   params: [
+          //     {
+          //       chainName: 'Polygon Mainnet',
+          //       chainId: ethers.utils.hexlify(CHAIN_ID),
+          //       nativeCurrency: { name: 'MATIC', decimals: 18, symbol: 'MATIC' },
+          //       rpcUrls: ['https://polygon-rpc.com/']
+          //     }
+          //   ]
+          // });
+        }
+      }
+    }
+  }
+}
+
 export const connectWallet = async () => {
 
     try {
@@ -109,4 +139,4 @@ export const getWalletBalance = async (address) =>{
 }
 
 
-export default { getProvider, listenForChain, connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
+export default {switchNetwork, getProvider, listenForChain, connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
