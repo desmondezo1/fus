@@ -52,21 +52,20 @@ export default function Home() {
     }
 
     useEffect( ()=>{
-        if (!checknetwork()) {
-            return;
-         }else{
-            (async () => {
-                if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
-            })()
-         }
-
-        setVals();
-        getTotalstkd();
+        // if (!checknetwork()) {
+        //     return;
+        //  }
 
         if(account){
             getPositions();
-            setBal();
+            setBal();   
+            setVals();
+            getTotalstkd();
         }
+
+         (async () => {
+            if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
+        })()
        
     },[])
 
