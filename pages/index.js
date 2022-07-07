@@ -10,7 +10,7 @@ import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import { Modal } from '../components/modal'
-import { getContract, getProvider, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
+import { getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -54,8 +54,12 @@ export default function Home() {
     useEffect( ()=>{
         if (!checknetwork()) {
             return;
+         }else{
+            (async () => {
+                if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
+            })()
          }
-      
+
         setVals();
         getTotalstkd();
 
@@ -63,11 +67,7 @@ export default function Home() {
             getPositions();
             setBal();
         }
-
-        (async () => {
-            if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
-         })()
-        
+       
     },[])
 
     function getRPCErrorMessage(err){
@@ -233,9 +233,9 @@ export default function Home() {
           <nav className="navbar navbar-expand-lg  navbar-dark">
               <a  className="navbar-brand" href="#">
                   <div>
-                      <span className="flogo">
+                      {/* <span className="flogo">
                           <img height={'auto'}  src="/img/Vector.png" alt="" />
-                      </span>
+                      </span> */}
                       <span className="logotext" >
                           <img height={'auto'}  src="/img/FUSION PROTOCOL.png" alt="" /> 
                       </span>  
@@ -614,7 +614,8 @@ export default function Home() {
   
                               <div key={`bal`+index} className="d-flex flex-wrap  flex-wrap  flex-wrap " style={{marginBottom: "32px", fontWeight: "700",
                               fontSize: "36px", background: "#0E1725", borderRadius: "8px", padding: "28px"}}>
-                                  <span className="text-white">{val?.reward_bal * 1} FSN</span>
+                                <img src='/img/logo.png' />
+                                  <span className="text-white" style={{marginLeft: "16px"}}>{val?.reward_bal * 1} FSN</span>
                               </div>
     
                               <div key={`warn`+index} className="notice d-flex " style={{background: "#0E1725", borderRadius: "8px" ,marginBottom: "32px", padding: "18px 33px"}}>
