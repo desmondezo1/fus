@@ -73,9 +73,11 @@ export default function Home() {
     },[])
 
     useEffect( ()=>{
-        if (!checknetwork(false)) {
-            setSiteMessage(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
-            console.log(siteMessage);
+        if(account){
+            if (!checknetwork(false)) {
+                setSiteMessage(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
+                console.log(siteMessage);
+            }
         }
     })
 
@@ -223,7 +225,7 @@ export default function Home() {
         //  if (!checknetwork()) {
         //     return;
         //  }
-
+        disconnectWallet();
          let wallet =  await connectWallet();
             if(wallet){
             setAccount(wallet[0]);
