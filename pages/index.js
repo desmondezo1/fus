@@ -10,7 +10,7 @@ import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import { Modal } from '../components/modal'
-import { getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
+import { getContract, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -30,6 +30,7 @@ export default function Home() {
     const [totalStaked, setTotalStaked] = useState();
     const [totalStakeHolders, setTotalStakeHolders] = useState();
     const [siteMessage, setSiteMessage] = useState();
+    const [rightNet, setRightNet] = useState(false);
     const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
     const setModal = useStore( state => state.setModalData )
     
@@ -53,33 +54,40 @@ export default function Home() {
     }
 
     useEffect( ()=>{
-        // if (!checknetwork()) {
-        //     return;
-        //  }
-
-        if(account){
-            if (checknetwork(false)) {
-                getPositions();
-                setBal();   
-                setVals();
-                getTotalstkd();
-            }
-        }
-
-         (async () => {
-            if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
-        })()
-       
-    },[])
-
-    useEffect( ()=>{
         if(account){
             if (!checknetwork(false)) {
-                setSiteMessage(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
+                toast.error(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
                 console.log(siteMessage);
+            }else{
+                setRightNet(true)
             }
         }
+    },[])
+
+    useEffect(()=>{
+        if (!checknetwork()) {
+            setRightNet(false);
+         }else{
+            setRightNet(true)
+         }
     })
+
+    useEffect( ()=>{
+        if(account && rightNet){
+            getPositions();               
+            setBal();   
+            setVals();
+            getTotalstkd();
+
+        }
+
+        //  (async () => {
+        //     if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
+        // })()
+       
+    })
+
+
 
     function getRPCErrorMessage(err){
         var open = err.stack.indexOf('{')
@@ -163,7 +171,10 @@ export default function Home() {
     }
   
     const getPositions = async () => {
-        checknetwork(false);
+        // if(!checknetwork()){
+        //     return;
+        // }
+
         let contract = await getContract();
         let i;
         let newArr = [];
@@ -192,7 +203,7 @@ export default function Home() {
         setpositions(newArr)
     }
 
-    const checknetwork = (toast=true) => {
+    const checknetwork = (istoast=true) => {
         if (typeof window !== "undefined") {
             if (!window.ethereum?.networkVersion) {
                 return;
@@ -202,14 +213,14 @@ export default function Home() {
                 console.log(window.ethereum.networkVersion)
                 console.log( CHAIN_ID)
                     if (+CHAIN_ID == 56) {
-                        if(toast){
+                        if(istoast){
                               toast.info("Please switch network to BSC mainet ");
                         }
                       
                     }
 
                     if(+CHAIN_ID == 97){
-                        if (toast) {
+                        if (istoast) {
                             toast.info("Please switch network to BSC Testnet ");
                         }
                         
@@ -225,7 +236,7 @@ export default function Home() {
         //  if (!checknetwork()) {
         //     return;
         //  }
-        disconnectWallet();
+        // disconnectWallet();
          let wallet =  await connectWallet();
             if(wallet){
             setAccount(wallet[0]);

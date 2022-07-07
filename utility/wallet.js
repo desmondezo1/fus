@@ -37,6 +37,14 @@ const providerOptions = {
 export const disconnect = async () => {
     await web3Modal.clearCachedProvider();
   };
+
+export const listenForChain = async () => {
+  let provider = await getProvider();
+  provider.on("chainChanged", (chainId) => {
+    console.log(chainId);
+    return chainId;
+  });
+}
   
 
 export const getProvider = async () => {
@@ -101,4 +109,4 @@ export const getWalletBalance = async (address) =>{
 }
 
 
-export default { getProvider, connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
+export default { getProvider, listenForChain, connectWallet, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
