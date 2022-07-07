@@ -57,6 +57,7 @@ export default function Home() {
         //  }
 
         if(account){
+            checknetwork();
             getPositions();
             setBal();   
             setVals();
@@ -151,6 +152,7 @@ export default function Home() {
     }
   
     const getPositions = async () => {
+        checknetwork();
         let contract = await getContract();
         let i;
         let newArr = [];
@@ -203,9 +205,9 @@ export default function Home() {
     }
   
     const connectWall = async () =>{
-         if (!checknetwork()) {
-            return;
-         }
+        //  if (!checknetwork()) {
+        //     return;
+        //  }
 
          let wallet =  await connectWallet();
             if(wallet){
