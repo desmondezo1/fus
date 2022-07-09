@@ -345,8 +345,13 @@ export const getTokenContract = async (prov) => {
 }
 
 export const convertToWei = async (val) => {
-  let res = await ethers.utils.parseEther(val);
-  return res;
+  let prov = await getProvider();
+  const web3 = new Web3(prov);
+  // return web3.utils.BN(val)
+  // return web3.utils.fromWei(val, 'ether')
+  return  Web3.utils.toWei(val, 'ether');
+  // let res = await ethers.utils.parseEther(val);
+  // return res;
 }
 export const convertToEther = async (val) => {
   let prov = await getProvider();
@@ -361,7 +366,6 @@ export const getWalletBalance = async (address, prov=null) =>{
   // let acc = await connectWallet();
   let contract = await getTokenContract(prov);
   let val = await contract.methods.balanceOf(address).call();
-  // console.log(ethers.utils.formatEther(val));
   let balance = convertToEther(val);
   
   return balance;

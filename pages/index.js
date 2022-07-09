@@ -59,6 +59,7 @@ export default function Home() {
     }
     const setBal = async () => {
         let bal = await getWalletBalance(walletAccount, providerInsatnce);
+        // console.log({bal})
         // console.log(bal);
          setUserBalance(bal);
     }
