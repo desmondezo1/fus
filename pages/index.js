@@ -331,7 +331,10 @@ export default function Home() {
                   <div className="portfolio_value d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between">
                       <span className="value_wrapper d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center">
                           <span className="p_value_label">Portfolio Value : &nbsp;</span>
-                          <span className="p_value"> {!userBalance?"0":userBalance} FSN</span>
+                          <span className="p_value"> {!walletAccount? 0 :(!userBalance?(
+                            <div class="spinner-grow" role="status">
+                            </div>
+                          ):userBalance)} FSN</span>
                       </span>
   
                       <button className="btn buy-coin-btn text-white">
@@ -347,8 +350,15 @@ export default function Home() {
                           <span> Total Stakers </span> 
                       </span>
   
-                      <span className="tokenValue">
-                          {!totalStakeHolders? 0: totalStakeHolders * 1}
+                      <span className="tokenValue">{!walletAccount? 0 :( !totalStakeHolders? (
+                            <div class="spinner-grow" role="status">
+                            </div>
+                          ): totalStakeHolders * 1)
+                      
+                      }  
+                    
+                          
+                          
                       </span>
   
                   </span>
@@ -359,7 +369,10 @@ export default function Home() {
                           <span>Total Fusion Staked </span> 
                       </span>
                       <span className="tokenValue">
-                         {!totalStaked? "0": totalStaked * 1}
+                      {!walletAccount? 0 :(!totalStaked?(
+                            <div class="spinner-grow" role="status">
+                            </div>
+                          ): totalStaked * 1)}
                       </span>
                   </span>
   
