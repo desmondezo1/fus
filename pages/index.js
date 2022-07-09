@@ -12,7 +12,7 @@ import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import ConnectModal from '../components/ConnectModal'
 import { Modal } from '../components/modal'
-import { getContract,switchNetwork, checkNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
+import { connectToMetaMask, connectWithWalletConnect , getContract,switchNetwork, checkNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -65,8 +65,26 @@ export default function Home() {
          setUserBalance(bal);
     }
 
+    const reconWallet = async () =>{
+            try {
+                const { ethereum } = window;
+                let acc;
+                if (!ethereum) {
+                    acc = await connectWithWalletConnect();
+                    setWalletAccount(acc.account);
+                    setProvInstance(acc.prov)
+                }else{
+                    acc = await connectToMetaMask();
+                    setWalletAccount(acc.account);
+                    setProvInstance(acc.prov)
+                }
+            }catch(error){
+                console.log(error.message)
+            } 
+    }
 
-    useEffect( ()=>{
+
+    useEffect(()=>{
         
         if(walletAccount){
             // switchNetwork();
@@ -84,6 +102,13 @@ export default function Home() {
                 getTotalstkd()
             }
         }
+        let con =  localStorage.getItem('walletConnected');
+        console.log({con});
+
+        (async () => {
+            if(con == 'true') await reconWallet();
+        })()
+       
     })
 
 
@@ -236,20 +261,8 @@ export default function Home() {
 
  
     const connectWall = async () =>{
-        // //  if (!checknetwork()) {
-        // //     return;
-        // //  }
-        // disconnectWallet();
-        //  let wallet =  await connectWallet();
-        //     if(wallet){
-        //     setAccount(wallet[0]);
-        //     toast.success('connected!')
-        //     }  
-
         setDisplayModalTrue();
         console.log('entss')
-
-
     }
 
    
@@ -258,6 +271,7 @@ export default function Home() {
         disconnect();
         setWalletAccount('')
         localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
+        localStorage.setItem('walletConnected', false)
     }
 
     const onChange = event => {

@@ -52,13 +52,15 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
         if(acc){
             setWalletAccount(acc.account);
             setProvInstance(acc.prov);
+            localStorage.setItem('walletConnected',true)
         }
 
     }else if(type == 'walletconnect'){
         acc = await  connectWithWalletConnect();
         if(acc){
             setWalletAccount(acc.account);
-            setProvInstance(acc.prov) 
+            setProvInstance(acc.prov)
+            localStorage.setItem('walletConnected', true)
         }
     }
        
