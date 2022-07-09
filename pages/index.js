@@ -172,7 +172,7 @@ export default function Home() {
         amount = await convertToWei(amount);
         console.log({amount, pId})
 
-        let contract = await getContract();
+        let contract = await getContract(providerInsatnce);
         let token = await getTokenContract(providerInsatnce);
         try {
             setLoading(true);
@@ -197,7 +197,7 @@ export default function Home() {
     const claim_reward = async (ppid) => {
         console.log({ppid});
         //  data-toggle="modal" data-target="#exampleModalCenter" onClick={()=>{setModalItem(pool)}}
-        let contract = await getContract();
+        let contract = await getContract(providerInsatnce);
         try {
             let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000});
         } catch (error) {
@@ -231,7 +231,7 @@ export default function Home() {
         //     return;
         // }
 
-        let contract = await getContract();
+        let contract = await getContract(providerInsatnce);
         let i;
         let newArr = [];
         
