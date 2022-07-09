@@ -201,7 +201,7 @@ export default function Home() {
         try {
             let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000});
         } catch (error) {
-            toast.error(error.mesage)
+            // toast.error(error.mesage)
             // alert(error)
             // alert('You have no stake in this pool')
         }
@@ -251,7 +251,7 @@ export default function Home() {
                     newArr.push(stakingpools[i])
                 }
             } catch (err) {
-                toast.error(err.message)
+                // toast.error(err.message)
     
             }
         }
