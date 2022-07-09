@@ -1,0 +1,172 @@
+import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import useStore from '../utility/store';
+import mobileWallet from '../public/img/walletconnect1.svg';
+import metamask from '../public/img/MetaMask_Fox.svg';
+// import trustWallet from '../../public/trust.svg';
+import Image from 'next/image';
+// import { WALLET_WIDTH } from '../../constants.js';
+import{appConnector} from "../utility/wallet"
+import { Icon } from '@iconify/react';
+import {connectToMetaMask, connectWithWalletConnect } from '../utility/wallet';
+
+export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
+  const [showWalletModal, setWalletShowModal] = useState(showModal);    
+  const [walletAcc, setWalletAcc] = useState({});    
+  const displayModal = useStore((state) => state.setDisplayModalFalse);
+  const setBlurV = useStore((state) => state.setBlurV);
+  const setWalletAccount = useStore((state) => state.setWalletAccount);
+  const setProvInstance = useStore((state) => state.setProvInstance);
+  const visibility = useStore((state) => state.displayModal);
+  const walletAccount = useStore((state) => state.WalletAccount);
+//   const setwalletConnected = useStore((state) => state.setWalletConnected);
+//   const setWalletBalance = useStore((state) => state.setWalletBalance);
+
+  const handleClose = () => {
+    setWalletShowModal(false);
+    setBlurV(false);
+    displayModal();
+  };
+
+//   const connectMetaMaskWallet = async () => {
+//     let resp = await appConnector.connectWallet();
+//     if (resp.account) {
+//       console.log(resp);
+//     //   setwalletConnected(true);
+//     //   setWalletBalance(resp.balance);
+//     }
+//   }
+
+    useEffect(()=>{
+
+        if(walletAccount){
+        handleClose();
+        }
+    })
+
+  const connectWallet = async (type) => {
+    let acc ;
+
+    if(type == 'metamask'){
+        acc = await connectToMetaMask();
+        if(acc){
+            setWalletAccount(acc.account);
+            setProvInstance(acc.prov);
+        }
+
+    }else if(type == 'walletconnect'){
+        acc = await  connectWithWalletConnect();
+        if(acc){
+            setWalletAccount(acc.account);
+            setProvInstance(acc.prov) 
+        }
+    }
+       
+  }
+
+  return (
+    <>
+      {visibility ? (
+        <>
+        {visibility? setBlurV(true): setBlurV(false)}
+        <div className='walletModal d-flex align-items-center justify-content-center' style={{
+            background: "#00000093",
+            width: "100%",
+            height: "100vh",
+            overflow: "none",
+            position: "fixed",
+            zIndex: "99"
+        }}>
+            <div className='container modal-container' style={{
+                background: "#080F18",
+                maxWidth: "380px",
+            }}>
+                <div className='head d-flex  align-items-center justify-content-center' style={{
+                    padding: "20px",
+                    borderBottom: "1px solid #132236",
+                    position: "relative"
+
+                }}>
+                    <p className=' text-white' style={{
+                        width: "100%",
+                        textAlign: "center",
+                        margin: 0,
+                        fontWeigth: "800",
+                        fontFamily: "'Sen', sans-serif"
+                    }}
+                    >{title}</p>
+                    <button className=" border-0 d-flex align-items-center justify-content-center" style={{
+                        background: "#080F18",
+                        color: "#9A9EB2",
+                        fontSize: "2.4rem",
+                        alignSelf: "end",
+                        cursor: 'pointer'
+                    }} onClick={handleClose}> <Icon icon="eva:close-fill" /></button>
+                 <hr style={{
+                      width: "107%",
+                      bottom: "0",
+                      position: "absolute",
+                      color: "#132236"
+                 }}></hr>
+                </div>
+               
+
+
+
+                <div className={'body'}>
+                <div className="wallet- d-flex flex-column">
+
+                  <button className="d-flex align-items-center text-white mb-4 " style={{
+                    background: "#13223633",
+                    border: "1px solid #132236",
+                    borderRadius: "5px",
+                    padding: "17px",
+                  }} onClick={()=>{connectWallet(`walletconnect`)}}>
+                    <Image
+                      src={mobileWallet}
+                      alt="wallet"
+                      width={'40'}
+                      height={'40'}
+                      className="align-straight pr-3"
+                    />
+                    <span style={{
+                        marginLeft: "17px"
+                    }} className="align-straight">Mobile Wallet</span>
+                  </button>
+
+                  <button className="d-flex  align-items-center text-white mb-4" onClick={()=>{connectWallet(`metamask`)}}  style={{
+                    background: "#13223633",
+                    border: "1px solid #132236",
+                    borderRadius: "5px",
+                    padding: "17px",
+                  }}>
+                    <Image
+                      src={metamask}
+                      alt="metamask"
+                      width={'40'}
+                      height={'40'}
+                      className="align-straight pr-3"
+                    />
+                    <span style={{
+                        marginLeft: "17px"
+                    }} className="align-straight">Metamask</span>
+                  </button >
+                  
+                </div>
+                </div>
+            </div>
+        </div>
+
+
+
+          <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+// ConnectModal.propTypes = {
+//   showModal: PropTypes.bool,
+//   title: PropTypes.string
+// };

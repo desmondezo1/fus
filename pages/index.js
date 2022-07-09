@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { ethers } from 'ethers'
+import Web3 from "web3";
 import Web3Modal from 'web3modal'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,8 +10,9 @@ import { connectWallet, disconnect} from "../utility/wallet"
 import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
+import ConnectModal from '../components/ConnectModal'
 import { Modal } from '../components/modal'
-import { getContract,switchNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
+import { getContract,switchNetwork, checkNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -31,9 +33,16 @@ export default function Home() {
     const [totalStakeHolders, setTotalStakeHolders] = useState();
     const [siteMessage, setSiteMessage] = useState();
     const [rightNet, setRightNet] = useState(false);
+
     const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
     const setModal = useStore( state => state.setModalData )
-    
+    const walletAccount = useStore((state) => state.WalletAccount);
+    const setDisplayModalTrue = useStore((state) => state.setDisplayModalTrue);
+    const displayModal = useStore((state) => state.displayModal);
+    const setWalletAccount = useStore((state) => state.setWalletAccount);
+    const blurV = useStore((state) => state.blurV);
+    const providerInsatnce = useStore((state) => state.providerInsatnce);
+
     const setVals = async () => {
         if(modalItem){           
             setAmount(modalItem.min_deposit);
@@ -42,22 +51,23 @@ export default function Home() {
         
     }
     const getTotalstkd = async () =>{
-        let contract = await getContract();
-        let totalStkd = await contract.getTotalStaked();
-        let holders = await contract.getTotalStakeHolderCount();
-        setTotalStaked(convertToEther(totalStkd));
+        let contract = await getContract(providerInsatnce);
+        let totalStkd = await contract.methods.getTotalStaked().call();
+        let holders = await contract.methods.getTotalStakeHolderCount().call();
+        setTotalStaked(await convertToEther(totalStkd));
         setTotalStakeHolders(holders);
     }
     const setBal = async () => {
-        let bal = await getWalletBalance();
+        let bal = await getWalletBalance(walletAccount, providerInsatnce);
+        // console.log(bal);
          setUserBalance(bal);
     }
 
     useEffect( ()=>{
         
-        if(account){
-            switchNetwork();
-            if (!checknetwork(false)) {
+        if(walletAccount){
+            // switchNetwork();
+            if (!checkNetwork(providerInsatnce, false)) {
                 toast.error(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
                 console.log(siteMessage);
             }else{
@@ -67,15 +77,17 @@ export default function Home() {
     },[])
 
     useEffect(()=>{
-        if (!checknetwork()) {
-            setRightNet(false);
-         }else{
-            setRightNet(true)
-         }
+        if(walletAccount){
+            if (!checkNetwork(providerInsatnce)) {
+                setRightNet(false);
+            }else{
+                setRightNet(true)
+            }
+        }
     })
 
     useEffect( ()=>{
-        if(account && rightNet){
+        if(walletAccount && rightNet){
             getPositions();               
             setBal();   
             setVals();
@@ -104,7 +116,7 @@ export default function Home() {
     const stake = async ( ) => {
         
         let amount = document.getElementById("amtInput").value;
-        if (!account) {
+        if (!walletAccount) {
             toast.info(`Please connect wallet`)
             // alert();
             return;
@@ -126,11 +138,11 @@ export default function Home() {
         console.log({amount, pId})
 
         let contract = await getContract();
-        let token = await getTokenContract();
+        let token = await getTokenContract(providerInsatnce);
         try {
             let approve = await token.approve( CONTRACT_ADDRESS, amount ).then( async res => {
                 if(res){
-                let stake = await contract.stake( amount, pId  );
+                let stake = await contract.methods.stake( amount, pId  );
                 }
             });
 
@@ -145,7 +157,7 @@ export default function Home() {
         //  data-toggle="modal" data-target="#exampleModalCenter" onClick={()=>{setModalItem(pool)}}
         let contract = await getContract();
         try {
-            let claimreward = await contract.claimReward( ppid );
+            let claimreward = await contract.methods.claimReward( ppid );
         } catch (error) {
             toast.error(error.mesage)
             // alert(error)
@@ -183,11 +195,11 @@ export default function Home() {
         
         for (let i = 0; i < stakingpools.length; i++) {
             try {
-                 let stakingBalance = await contract.getUserStakingBalance(+stakingpools[i].poolId, account);
+                 let stakingBalance = await contract.methods.getUserStakingBalance(+stakingpools[i].poolId, walletAccount);
                 if(stakingBalance > 0) {
                     stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
-                    let reward_bal = await contract.calculateUserRewards(account, stakingpools[i].poolId);
-                    let stakeTime = await contract.getLastStakeDate( stakingpools[i].poolId,account);
+                    let reward_bal = await contract.methods.calculateUserRewards(walletAccount, stakingpools[i].poolId);
+                    let stakeTime = await contract.methods.getLastStakeDate( stakingpools[i].poolId,walletAccount);
                     stakeTime = stakeTime.toString();
                     let startDate = formatDate(+stakeTime);
                     let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
@@ -205,45 +217,21 @@ export default function Home() {
         setpositions(newArr)
     }
 
-    const checknetwork = (istoast=true) => {
-        if (typeof window !== "undefined") {
-            if (!window.ethereum?.networkVersion) {
-                return;
-            }
-            if (+window.ethereum?.networkVersion !== +CHAIN_ID) {
-                console.log('enters',window.ethereum?.networkVersion , CHAIN_ID)
-                console.log(window.ethereum.networkVersion)
-                console.log( CHAIN_ID)
-                    if (+CHAIN_ID == 56) {
-                        if(istoast){
-                              toast.info("Please switch network to BSC mainet ");
-                        }
-                      
-                    }
-
-                    if(+CHAIN_ID == 97){
-                        if (istoast) {
-                            toast.info("Please switch network to BSC Testnet ");
-                        }
-                        
-                    }
-                return false;
-            }
-
-            return true;
-         }
-    }
-  
+ 
     const connectWall = async () =>{
-        //  if (!checknetwork()) {
-        //     return;
-        //  }
-        disconnectWallet();
-         let wallet =  await connectWallet();
-            if(wallet){
-            setAccount(wallet[0]);
-            toast.success('connected!')
-            }  
+        // //  if (!checknetwork()) {
+        // //     return;
+        // //  }
+        // disconnectWallet();
+        //  let wallet =  await connectWallet();
+        //     if(wallet){
+        //     setAccount(wallet[0]);
+        //     toast.success('connected!')
+        //     }  
+
+        setDisplayModalTrue();
+        console.log('entss')
+
 
     }
 
@@ -251,7 +239,7 @@ export default function Home() {
 
     const disconnectWallet = async () =>{
         disconnect();
-        setAccount();
+        setWalletAccount('')
         localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
     }
 
@@ -261,9 +249,12 @@ export default function Home() {
     };
     
 
-  return (<>
+  return (<> 
+  
       <header>
+     
       <ToastContainer />
+      <ConnectModal showModal={displayModal} />
       {!siteMessage? "" : (<div className='d-flex justify-contents-center align-items-center' style={{display: "flex", background: "orange", padding: "20px"}}><b>{siteMessage}</b></div>)}
           <nav className="navbar navbar-expand-lg  navbar-dark">
               <a  className="navbar-brand" href="#">
@@ -301,14 +292,17 @@ export default function Home() {
                   </li>
                 </ul>
                   
-                  <button className="mr-sm-2 mr-lg-0 mr-md-0 connectWallet" onClick={()=>{ !account ? connectWall() :  disconnectWallet()}}>
-                     { !account ? "Connect Wallet" : account.substring(0, 7)}
+                  <button className="mr-sm-2 mr-lg-0 mr-md-0 connectWallet" onClick={()=>{ !walletAccount ? connectWall() : disconnectWallet()}}>
+                     { !walletAccount ? `Connect Wallet` : walletAccount.substring(0, 7)}
                   </button>
+                   
               </div>
   
             </nav>
       </header>
-      <main className="container">
+      <main className="container" style={blurV?{
+        filter: "blur(8px)"        
+      }: {}}>
   
           <section>
               <div className="text-white" style={{marginBottom: "64px"}}>
