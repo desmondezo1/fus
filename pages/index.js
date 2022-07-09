@@ -140,9 +140,9 @@ export default function Home() {
         let contract = await getContract();
         let token = await getTokenContract(providerInsatnce);
         try {
-            let approve = await token.approve( CONTRACT_ADDRESS, amount ).then( async res => {
+            let approve = await token.methods.approve( CONTRACT_ADDRESS, amount ).send().then( async res => {
                 if(res){
-                let stake = await contract.methods.stake( amount, pId  );
+                let stake = await contract.methods.stake( amount, pId  ).send();
                 }
             });
 
