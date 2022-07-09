@@ -33,6 +33,7 @@ export default function Home() {
     const [totalStakeHolders, setTotalStakeHolders] = useState();
     const [siteMessage, setSiteMessage] = useState();
     const [rightNet, setRightNet] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
     const setModal = useStore( state => state.setModalData )
@@ -64,6 +65,7 @@ export default function Home() {
          setUserBalance(bal);
     }
 
+
     useEffect( ()=>{
         
         if(walletAccount){
@@ -74,33 +76,40 @@ export default function Home() {
             }else{
                 setRightNet(true)
             }
-        }
-    },[])
 
-    useEffect(()=>{
-        if(walletAccount){
-            if (!checkNetwork(providerInsatnce)) {
-                setRightNet(false);
-            }else{
-                setRightNet(true)
+            if(walletAccount && rightNet){
+                getPositions();               
+                setBal();   
+                setVals();
+                getTotalstkd()
             }
         }
     })
 
-    useEffect( ()=>{
-        if(walletAccount && rightNet){
-            getPositions();               
-            setBal();   
-            setVals();
-            getTotalstkd();
 
-        }
+    // useEffect(()=>{
+    //     if(walletAccount){
+    //         if (!checkNetwork(providerInsatnce)) {
+    //             setRightNet(false);
+    //         }else{
+    //             setRightNet(true)
+    //         }
+    //     }
+    // },[walletAccount,userBalance,totalStaked,totalStakeHolders])
 
-        //  (async () => {
-        //     if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
-        // })()
+    // useEffect( ()=>{
+    //     if(walletAccount && rightNet){
+    //         getPositions();               
+    //         setBal();   
+    //         setVals();
+    //         getTotalstkd();
+    //     }
+
+    //     //  (async () => {
+    //     //     if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
+    //     // })()
        
-    })
+    // },[walletAccount,userBalance,totalStaked,totalStakeHolders])
 
 
 
@@ -141,13 +150,20 @@ export default function Home() {
         let contract = await getContract();
         let token = await getTokenContract(providerInsatnce);
         try {
-            let approve = await token.methods.approve( CONTRACT_ADDRESS, amount ).send().then( async res => {
+            setLoading(true);
+            let approve = await token.methods.approve( CONTRACT_ADDRESS, amount ).send({from: walletAccount}).then( async res => {
                 if(res){
-                let stake = await contract.methods.stake( amount, pId  ).send();
+                let stake = await contract.methods.stake( amount, pId  ).send({from: walletAccount,  gasLimit: 300000});
+     
                 }
             });
+            setLoading(false);
+            toast.success(`Staked!`);
+            $('#exampleModal').modal('hide');
+            getPositions();
 
         } catch (error) {
+            console.log(error)
             toast.error(error.message)
         }
       
@@ -158,7 +174,7 @@ export default function Home() {
         //  data-toggle="modal" data-target="#exampleModalCenter" onClick={()=>{setModalItem(pool)}}
         let contract = await getContract();
         try {
-            let claimreward = await contract.methods.claimReward( ppid );
+            let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000});
         } catch (error) {
             toast.error(error.mesage)
             // alert(error)
@@ -196,11 +212,11 @@ export default function Home() {
         
         for (let i = 0; i < stakingpools.length; i++) {
             try {
-                 let stakingBalance = await contract.methods.getUserStakingBalance(+stakingpools[i].poolId, walletAccount);
+                 let stakingBalance = await contract.methods.getUserStakingBalance(+stakingpools[i].poolId, walletAccount).call();
                 if(stakingBalance > 0) {
                     stakingpools[i].bal = ethers.utils.formatEther(stakingBalance);
-                    let reward_bal = await contract.methods.calculateUserRewards(walletAccount, stakingpools[i].poolId);
-                    let stakeTime = await contract.methods.getLastStakeDate( stakingpools[i].poolId,walletAccount);
+                    let reward_bal = await contract.methods.calculateUserRewards(walletAccount, stakingpools[i].poolId).call();
+                    let stakeTime = await contract.methods.getLastStakeDate( stakingpools[i].poolId,walletAccount).call();
                     stakeTime = stakeTime.toString();
                     let startDate = formatDate(+stakeTime);
                     let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
@@ -474,7 +490,7 @@ export default function Home() {
                           </td>
                           <td>
                               
-                              <button className="stake-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={()=>{setModalItem(pool)}} > Stake </button>
+                              <button className="stake-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={()=>{setModalItem(pool); console.log({pool})}} > Stake </button>
                              
                           </td>
                         </tr>
@@ -587,7 +603,7 @@ export default function Home() {
                                   <button className="btn flex-grow-1 stake-btn" style={{fontWeight: "800", fontSize: "24px"}} onClick={()=>{
                                     stake();
                                   }}>
-                                      Stake
+                                     {!loading? 'Stake': 'Processing...'} 
                                   </button>
                               </div>
                               
