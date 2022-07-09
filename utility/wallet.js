@@ -43,9 +43,14 @@ let currentAccount = null;
 export const getProvider = async () => {
   // const provider = new ethers.providers.Web3Provider(ethereum);
   // if(!provider){
-    let provider = await detectEthereumProvider();
-
-  return provider;
+    if (typeof window !== "undefined") {
+      let { ethereum } = window; 
+      if(ethereum){
+        let provider = await detectEthereumProvider();
+        return provider;
+      }
+   }
+    
 }
 
 export const connectWithWalletConnect = async () => {

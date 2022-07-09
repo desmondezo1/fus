@@ -101,13 +101,14 @@ export default function Home() {
                 setVals();
                 getTotalstkd()
             }
+        }else{
+            let con =  localStorage.getItem('walletConnected');
+            console.log({con});
+            (async () => {
+                if(con == 'true') await reconWallet();
+            })() 
         }
-        let con =  localStorage.getItem('walletConnected');
-        console.log({con});
 
-        (async () => {
-            if(con == 'true') await reconWallet();
-        })()
        
     })
 
