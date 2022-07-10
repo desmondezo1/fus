@@ -268,8 +268,8 @@ export default function Home() {
     }
 
     const onChange = event => {
-        console.log("onChange called");
-        setWarnAmount(event.target.value);
+        event.target.value = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+        setWarnAmount(+event.target.value);
     };
     
 
@@ -572,7 +572,7 @@ export default function Home() {
                               marginBottom: "32px"
                               }}>
                                   {/* <span >20,000 <small>($1000)</small></span> */}
-                                  <input type="number" id="amtInput" placeholder={`Min ${inputAmt}`} onChange={onChange} style={{
+                                  <input type="text" id="amtInput" placeholder={`Min ${inputAmt}`} onChange={onChange} style={{
                                     background: "#0E1725",
                                     borderRadius: "8px",
                                     padding: "28.5px",
