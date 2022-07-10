@@ -236,7 +236,7 @@ export default function Home() {
                     let endDate =  formatDate(+stakeTime, +stakingpools[i].duration);
                     stakingpools[i].date = startDate + " - " + endDate;
                     stakingpools[i].end_date = endDate;
-                    stakingpools[i].reward_bal = convertToEther(reward_bal);
+                    stakingpools[i].reward_bal = await convertToEther(reward_bal);
                     newArr.push(stakingpools[i])
                 }
             } catch (err) {
@@ -260,7 +260,7 @@ export default function Home() {
         disconnect();
         setWalletAccount('')
         localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
-        localStorage.setItem('walletConnected', false)
+        localStorage.removeItem('walletConnected')
     }
 
     const onChange = event => {
@@ -662,7 +662,7 @@ export default function Home() {
                                             <span className="text-light-grey"> Your Stake</span>
                                             <span> 
                                                 <span className="text-white" style={{fonWeight: "700",
-                                                fontSize: "1.5rem"}}>{val?.bal*1} FUSION</span>
+                                                fontSize: "1.5rem"}}>{val?.bal*1} FSN</span>
                                                 {/* <span className="text-light-grey" style={{fontWeight: "400"}}>$9201</span> */}
                                             </span>
                                         </div>

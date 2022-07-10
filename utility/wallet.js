@@ -231,32 +231,7 @@ export function handleAccountsChanged(accounts) {
 //   }
 
 export const disconnect = async (prov) => {
-  const provider = new WalletConnectProvider({
-    infuraId: '460f40a260564ac4a4f4b3fffb032dad',
-    rpc: {
-      97: 'https://data-seed-prebsc-1-s1.binance.org:8545'
-    },
-  });
 
-  await provider.enable();
-  if(provider){
-    const result = await provider.request({
-    method: 'method',
-    params: []
-  });
-  //   // Close provider session
-    await provider.disconnect()
-  }
-
-
-
-
-  localStorage.removeItem('provider');
-  // if(!prov){
-  //   // const { ethereum } = window;
-  //   prov = await getProvider();
-  // }
-  // const provider = new ethers.providers.Web3Provider(prov);
   
 };
 
@@ -402,4 +377,4 @@ export const getWalletBalance = async (address, prov=null) =>{
 }
 
 
-export default {connectToMetaMask, removeCyclicRef, checkNetwork, connectWithWalletConnect, switchNetwork, getProvider, listenForChain, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
+export default {connectToMetaMask, checkNetwork, connectWithWalletConnect, switchNetwork, getProvider, listenForChain, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
