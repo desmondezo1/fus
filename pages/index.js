@@ -11,7 +11,7 @@ import stakingpools from '../utility/stakingpools'
 import ConnectModal from '../components/ConnectModal'
 import { Modal } from '../components/modal'
 import { useRouter } from 'next/router'
-import { connectToMetaMask, connectWithWalletConnect , getContract,switchNetwork, checkNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
+import { connectToMetaMask, connectWithWalletConnect , getContract, getReason, checkNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
 
@@ -20,7 +20,7 @@ import { connectToMetaMask, connectWithWalletConnect , getContract,switchNetwork
 export default function Home() {
 
 
-    
+
     const [account , setAccount] = useState();
     const [modalItem , setModalItem] = useState();
     const [inputAmt, setAmount] = useState();
@@ -172,6 +172,7 @@ export default function Home() {
 
         try {
             setLoading(true);
+
             let approve = await token.methods.approve( CONTRACT_ADDRESS, amount ).send({from: walletAccount}).then( async res => {
                     if(res){
                         let stake = await contract.methods.stake( amount, pId  ).send({from: walletAccount,  gasLimit: 300000});
@@ -179,13 +180,20 @@ export default function Home() {
                 });
 
             setLoading(false);
-            toast.success(`Staked!`);
-            $('#exampleModal').modal('hide');
+            toast.success(`Staking Successful`);
             getPositions();
 
         } catch (error) {
-            console.log(error)
-            toast.error(error.message)
+            let state = await contract.methods.getPoolState(pId).call({from: walletAccount});
+            console.log({state})
+            if (await state) {
+                toast.error('Staking in this pool is currently Paused. Please contact admin');
+            }else{
+               toast.error('You currently have a stake in this pool. You have to Unstake.');
+            }
+
+            setLoading(false);
+
         }
     }
 
@@ -195,7 +203,10 @@ export default function Home() {
         let contract = await getContract(providerInsatnce);
         try {
             setLoading(true)
-            let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000});
+            let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000}).then(r =>{
+                toast.success(`Claiming Successful`);
+                setLoading(false)
+            });
             setLoading(false)
         } catch (error) {
             console.log(error)
@@ -401,48 +412,48 @@ export default function Home() {
 
                        positions.map((item, index) => {
                         return (
-                        <div key={index} className="claim-reward position-wrapper d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between">
+                        <div key={`claim-${index}`} className="claim-reward position-wrapper d-flex flex-wrap  flex-wrap  flex-wrap  justify-content-between">
                                             
-                        <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                            <span className="d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center" style={{height: "38px"}}>
-                                <span className="">
-                                    <img  height={'auto'} src={item?.image} alt="" />
+                            <div key={`it-${index}`} className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                                <span className="d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center" style={{height: "38px"}}>
+                                    <span className="">
+                                        <img  height={'auto'} src={item?.image} alt="" />
+                                    </span>
+                                    <span className="text-white" style={{fontWeight: "700",
+                                    fontSize: "1.5rem",
+                                    margin: "0 10px"
+                                    }}>
+                                        {item?.name}
+                                    </span>
+                                    <span>
+                                        <img  height={'auto'} src="/img/open.png" alt="" />
+                                    </span> 
                                 </span>
-                                <span className="text-white" style={{fontWeight: "700",
-                                fontSize: "1.5rem",
-                                margin: "0 10px"
-                                }}>
-                                    {item?.name}
-                                </span>
-                                <span>
-                                    <img  height={'auto'} src="/img/open.png" alt="" />
-                                </span> 
-                            </span>
-                            <p className="text-light-grey"> Duration:{" "} {item?.date}</p>
-                        </div>
+                                <p className="text-light-grey"> Duration:{" "} {item?.date}</p>
+                            </div>
 
-                        <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                            <span className="text-light-grey"> Return on Investment</span>
-                            <span style={{color: "rgba(81, 235, 180, 1)",
-                            fontWeight: "700",
-                            fontSize: "1.5rem"}}> {item?.roi}</span>
-                        </div>
-
-                        <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                            <span className="text-light-grey"> Your Stake</span>
-                            <span>
-                                <span className="text-white" style={{
+                            <div key={`rti-${index}`} className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                                <span className="text-light-grey"> Return on Investment</span>
+                                <span style={{color: "rgba(81, 235, 180, 1)",
                                 fontWeight: "700",
-                                fontSize: "1.5rem"}}>{item?.bal * 1} FUSION</span>
-                                <span className="text-light-grey"></span>
-                            </span>
-                        </div>
+                                fontSize: "1.5rem"}}> {item?.roi}</span>
+                            </div>
 
-                        <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                            <button className=" claim-reward-btn text-white " data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={()=>{setModalItem(item); setModalPillActive(); console.log({item})}} >
-                                Claim Reward
-                            </button>
-                        </div>
+                            <div key={`yr-${index}`} className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                                <span className="text-light-grey"> Your Stake</span>
+                                <span>
+                                    <span className="text-white" style={{
+                                    fontWeight: "700",
+                                    fontSize: "1.5rem"}}>{item?.bal * 1} FUSION</span>
+                                    <span className="text-light-grey"></span>
+                                </span>
+                            </div>
+
+                            <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
+                                <button key={`btncl-${index}`} className=" claim-reward-btn text-white " data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={()=>{setModalItem(item); setModalPillActive(); console.log({item})}} >
+                                    {!loading? 'Claim reward': 'Processing...'}
+                                </button>
+                            </div>
 
                         </div>
 
@@ -475,7 +486,7 @@ export default function Home() {
                             stakingpools.map((pool, index)  => {
                             return(
 
-                                <tr key={index}>
+                        <tr key={index}>
                           <td>
                               <span className="d-flex flex-wrap  flex-wrap  flex-wrap  align-items-center ">
                                   <span style={{marginRight: "16px"}}><img height={'auto'}  src={pool?.image} alt="" /> </span>

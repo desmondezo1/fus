@@ -12,7 +12,7 @@ export const TOKEN_ADDRESS = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 const ENV =  process.env.NEXT_PUBLIC_ENV;
 const INFURA_ID =  process.env.NEXT_PUBLIC_INFURA_ID;
-
+const getRevertReason = require('eth-revert-reason')
 
 
 let currentAccount = null;
@@ -242,6 +242,11 @@ export const getWalletBalance = async (address, prov=null) =>{
   let val = await contract.methods.balanceOf(address).call();
   let balance = convertToEther(val);
   return balance;
+}
+
+export const getReason = async ()=> {
+  let provider = await getProvider();
+  return await getRevertReason('0xb9ca162f2d7f600b8cf87f46d419ddabffd031380d7aed673804de7e06a084cf','Testnet','20944870',provider)
 }
 
 
