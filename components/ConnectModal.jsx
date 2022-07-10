@@ -1,49 +1,33 @@
-import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import useStore from '../utility/store';
 import mobileWallet from '../public/img/walletconnect1.svg';
 import metamask from '../public/img/MetaMask_Fox.svg';
-// import trustWallet from '../../public/trust.svg';
 import Image from 'next/image';
-// import { WALLET_WIDTH } from '../../constants.js';
-import{appConnector} from "../utility/wallet"
 import { Icon } from '@iconify/react';
 import {connectToMetaMask, connectWithWalletConnect } from '../utility/wallet';
 
-export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
-  const [showWalletModal, setWalletShowModal] = useState(showModal);    
-  const [walletAcc, setWalletAcc] = useState({});    
+export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {      
   const displayModal = useStore((state) => state.setDisplayModalFalse);
   const setBlurV = useStore((state) => state.setBlurV);
   const setWalletAccount = useStore((state) => state.setWalletAccount);
   const setProvInstance = useStore((state) => state.setProvInstance);
   const visibility = useStore((state) => state.displayModal);
   const walletAccount = useStore((state) => state.WalletAccount);
-//   const setwalletConnected = useStore((state) => state.setWalletConnected);
-//   const setWalletBalance = useStore((state) => state.setWalletBalance);
 
+  //Close modal when "x" is clicked
   const handleClose = () => {
-    setWalletShowModal(false);
     setBlurV(false);
     displayModal();
   };
 
-//   const connectMetaMaskWallet = async () => {
-//     let resp = await appConnector.connectWallet();
-//     if (resp.account) {
-//       console.log(resp);
-//     //   setwalletConnected(true);
-//     //   setWalletBalance(resp.balance);
-//     }
-//   }
 
-    useEffect(()=>{
+  useEffect(()=>{
+    if(walletAccount){
+    handleClose();
+    }
+  })
 
-        if(walletAccount){
-        handleClose();
-        }
-    })
-
+  //Handle wallet connection
   const connectWallet = async (type) => {
     let acc ;
 
@@ -52,7 +36,6 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
         if(acc){
             setWalletAccount(acc.account);
             setProvInstance(acc.prov);
-            console.log(acc.prov)
             localStorage.setItem('walletConnected',true)
         }
 
@@ -62,11 +45,8 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
             setWalletAccount(acc.account);
             setProvInstance(acc.prov);
             localStorage.setItem('walletConnected', true)
-            console.log(acc.prov)
-            console.log({res: JSON.stringify(res)});
         }
-    }
-       
+    }  
   }
 
   return (
@@ -114,9 +94,6 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
                       color: "#132236"
                  }}></hr>
                 </div>
-               
-
-
 
                 <div className={'body'}>
                 <div className="wallet- d-flex flex-column">
@@ -161,17 +138,9 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
                 </div>
             </div>
         </div>
-
-
-
           <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
         </>
       ) : null}
     </>
   );
 }
-
-// ConnectModal.propTypes = {
-//   showModal: PropTypes.bool,
-//   title: PropTypes.string
-// };

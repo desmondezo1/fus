@@ -2,11 +2,9 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import { ethers } from 'ethers'
-import Web3 from "web3";
 import Web3Modal from 'web3modal'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { connectWallet, disconnect} from "../utility/wallet"
 import useStore from "../utility/store"
 import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
@@ -47,13 +45,15 @@ export default function Home() {
     const providerInsatnce = useStore((state) => state.providerInsatnce);
     const setProvInstance = useStore((state) => state.setProvInstance);
 
+    // set values in the stake modal 
     const setVals = async () => {
         if(modalItem){           
             setAmount(modalItem.min_deposit);
             setpoolId(modalItem.poolId);
         }
-        
     }
+
+    // sets total staked on the contract 
     const getTotalstkd = async () =>{
         let contract = await getContract(providerInsatnce);
         let totalStkd = await contract.methods.getTotalStaked().call();
@@ -61,60 +61,79 @@ export default function Home() {
         setTotalStaked(await convertToEther(totalStkd));
         setTotalStakeHolders(holders);
     }
+
+    //set user balance state
     const setBal = async () => {
         let bal = await getWalletBalance(walletAccount, providerInsatnce);
-        // console.log({bal})
-        // console.log(bal);
          setUserBalance(bal);
     }
 
+    //reconnect wallet on refresh
     const reconWallet = async () =>{
-            try {
-                const { ethereum } = window;
-                let acc;
-                if (!ethereum) {
-                    acc = await connectWithWalletConnect();
-                    setWalletAccount(acc.account);
-                    setProvInstance(acc.prov)
-                    console.log(acc.prov)
-                }else{
-                    acc = await connectToMetaMask();
-                    setWalletAccount(acc.account);
-                    setProvInstance(acc.prov)
-                    console.log(acc.prov)
-                }
-            }catch(error){
-                console.log(error.message)
-            } 
+        try {
+            const { ethereum } = window;
+            let acc;
+            if (!ethereum) {
+                acc = await connectWithWalletConnect();
+                setWalletAccount(acc.account);
+                setProvInstance(acc.prov)
+                console.log(acc.prov)
+            }else{
+                acc = await connectToMetaMask();
+                setWalletAccount(acc.account);
+                setProvInstance(acc.prov)
+                console.log(acc.prov)
+            }
+        }catch(error){
+            console.log(error.message)
+        } 
+    }
+
+    const listenForChange = async () => {
+        let val = await listenForChain(providerInsatnce).then(res => {
+            if(!res){
+            //    disconnectWallet();
+            }
+            console.log( res );
+        });
+        
     }
 
 
+
     useEffect(()=>{
-        
         if(walletAccount){
-            // switchNetwork();
-            if (!checkNetwork(providerInsatnce, false)) {
+           
+            if (!checkNetwork(providerInsatnce, true)) {
+                setWalletAccount('')
+                console.log('doesnt remv')
+                setProvInstance('')
+                localStorage.removeItem('walletConnected')
                 toast.error(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`)
                 console.log(siteMessage);
             }else{
                 setRightNet(true)
             }
         }  
-    },[])
+    },[]) //set as 1
 
 
-    useEffect(()=>{
+
+    useEffect(()=>{ 
+        
         if(walletAccount){
+           
             if (!checkNetwork(providerInsatnce, false)) {
                 setRightNet(false);
             }else{
                 setRightNet(true)
             }
         }
-    })
+    }) //set continous
 
-    useEffect( ()=>{
+    useEffect( ()=>{ 
         if(walletAccount && rightNet){
+           
             getPositions();               
             setBal();   
             setVals();
@@ -125,54 +144,40 @@ export default function Home() {
                 if(localStorage.getItem('walletConnected')) await reconWallet();
             })()
         }
-    })
+    }) //set continous
 
-
-
-    function getRPCErrorMessage(err){
-        var open = err.stack.indexOf('{')
-        var close = err.stack.lastIndexOf('}')
-        var j_s = err.stack.substring(open, close + 1);
-        var j = JSON.parse(j_s);
-        var reason = j.data[Object.keys(j.data)[0]].reason;
-        return reason;
-    }
-
-
+    // stake tokens 
     const stake = async ( ) => {
         
         let amount = document.getElementById("amtInput").value;
+
         if (!walletAccount) {
             toast.info(`Please connect wallet`)
-            // alert();
             return;
         }
+
         if(+amount < +inputAmt){
             toast.info(`Input Min of ${inputAmt}`)
-            // alert();
             return;
         }
-        console.log({amount,userBalance});
+      
         if (+amount > +userBalance) {
             toast.error(`You don't have enough tokens for this transaction`);
-            // alert();
             return;
         }
 
-
         amount = await convertToWei(amount);
-        console.log({amount, pId})
-
         let contract = await getContract(providerInsatnce);
         let token = await getTokenContract(providerInsatnce);
+
         try {
             setLoading(true);
             let approve = await token.methods.approve( CONTRACT_ADDRESS, amount ).send({from: walletAccount}).then( async res => {
-                if(res){
-                let stake = await contract.methods.stake( amount, pId  ).send({from: walletAccount,  gasLimit: 300000});
-     
-                }
-            });
+                    if(res){
+                        let stake = await contract.methods.stake( amount, pId  ).send({from: walletAccount,  gasLimit: 300000});
+                    }
+                });
+
             setLoading(false);
             toast.success(`Staked!`);
             $('#exampleModal').modal('hide');
@@ -185,20 +190,18 @@ export default function Home() {
       
     }
 
+    //claim reward from contract
     const claim_reward = async (ppid) => {
         console.log({ppid});
-        //  data-toggle="modal" data-target="#exampleModalCenter" onClick={()=>{setModalItem(pool)}}
         let contract = await getContract(providerInsatnce);
         try {
             let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000});
         } catch (error) {
-            // toast.error(error.mesage)
-            // alert(error)
-            // alert('You have no stake in this pool')
+            console.log(error)
         }
-
     }
 
+    // format timestamp into readable text e.g "24 July 2021"
     function formatDate(timestamp, days=null) {
         let monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         let dateObj = new Date(timestamp * 1000);
@@ -213,15 +216,10 @@ export default function Home() {
         let year = dateObj.getFullYear();
         let date =  dateObj.getDate();
         return `${date} ${month} ${year}`;
-
-        // return dateObj;
     }
   
+    //get user's staked pools from contract
     const getPositions = async () => {
-        // if(!checknetwork()){
-        //     return;
-        // }
-
         let contract = await getContract(providerInsatnce);
         let i;
         let newArr = [];
@@ -242,31 +240,30 @@ export default function Home() {
                     newArr.push(stakingpools[i])
                 }
             } catch (err) {
-                // toast.error(err.message)
     
             }
         }
-
         setpositions(newArr)
     }
 
- 
+    //display connect modal to connect wallet
     const connectWall = async () =>{
         setDisplayModalTrue();
         console.log('entss')
     }
 
    
-
+    //disconnect wallet and reload page
     const disconnectWallet = async () =>{
-        disconnect();
         setWalletAccount('')
         setProvInstance('')
-        localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
+        localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
         localStorage.removeItem('walletConnected')
+        localStorage.removeItem('walletconnect');
         router.reload(window.location.pathname)
     }
 
+    // handle onchange allow only numbers to be typed into input field 
     const onChange = event => {
         event.target.value = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
         setWarnAmount(+event.target.value);
@@ -283,9 +280,6 @@ export default function Home() {
           <nav className="navbar navbar-expand-lg  navbar-dark">
               <a  className="navbar-brand" href="#">
                   <div>
-                      {/* <span className="flogo">
-                          <img height={'auto'}  src="/img/Vector.png" alt="" />
-                      </span> */}
                       <span className="logotext" >
                           <img height={'auto'}  src="/img/FUSION PROTOCOL.png" alt="" /> 
                       </span>  
@@ -383,25 +377,6 @@ export default function Home() {
                       </span>
                   </span>
   
-                  {/* <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                      <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
-                          <span className="eclipse" id="eclipse_blue"></span>
-                          <span> Staked </span> 
-                      </span>
-                      <span className="tokenValue">
-                          $9,210
-                      </span>
-                  </span> */}
-  
-                  {/* <span className="token d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                      <span className="tokenName d-flex flex-wrap  flex-wrap  flex-wrap  flex-row align-items-center justify-content-between">
-                          <span className="eclipse" id="eclipse_purple"></span>
-                          <span> Claimable </span> 
-                      </span>
-                      <span className="tokenValue">
-                          $34,920
-                      </span>
-                  </span> */}
               </div>
   
               <div className="container progress-container">
@@ -571,7 +546,7 @@ export default function Home() {
                               fontSize: "1.5rem",
                               marginBottom: "32px"
                               }}>
-                                  {/* <span >20,000 <small>($1000)</small></span> */}
+                                  
                                   <input type="text" id="amtInput" placeholder={`Min ${inputAmt}`} onChange={onChange} style={{
                                     background: "#0E1725",
                                     borderRadius: "8px",
@@ -603,7 +578,7 @@ export default function Home() {
                                   <span className="d-flex flex-wrap  flex-wrap  justify-content-between" style={{marginBottom:"18px"}}>
                                       <span>APY</span>
                                       <span>{modalItem?.roi} <span style={{color:"rgba(171, 146, 252, 1)"}}>  </span> <span>
-                                          {/* <img   height={'auto'} src="/img/downarrow.png" alt="" /> */}
+                                          
                                       </span> </span>
                                   </span>
                               </div>
@@ -629,7 +604,6 @@ export default function Home() {
                               
   
                           </div>
-                          {/* <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div> */}
                           <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
   
                               <p style={{color: "rgba(175, 190, 208, 1)"}}>Your Positions</p> 
@@ -667,7 +641,6 @@ export default function Home() {
                                             <span> 
                                                 <span className="text-white" style={{fonWeight: "700",
                                                 fontSize: "1.5rem"}}>{val?.bal*1} FSN</span>
-                                                {/* <span className="text-light-grey" style={{fontWeight: "400"}}>$9201</span> */}
                                             </span>
                                         </div>
                     
