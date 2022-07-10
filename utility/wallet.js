@@ -98,11 +98,8 @@ export async function connectToMetaMask() {
       toast.error("You need Metamask to use this Site, Please install MetaMask ☺️, Thank you!");
         return;
     }
-    if( !ethereum.networkVersion){
-        location.reload();
-        return;
-    }
-    if( ethereum.networkVersion !== CHAIN_ID){
+
+    if( ethereum.networkVersion && ethereum.networkVersion !== CHAIN_ID ){
       toast.error(`WRONG NETWORK! Please switch to ${ process.env.NEXT_PUBLIC_NETWORK_NAME}`);
       return;
     }
