@@ -43,6 +43,7 @@ export default function Home() {
     const setWalletAccount = useStore((state) => state.setWalletAccount);
     const blurV = useStore((state) => state.blurV);
     const providerInsatnce = useStore((state) => state.providerInsatnce);
+    const setProvInstance = useStore((state) => state.setProvInstance);
 
     const setVals = async () => {
         if(modalItem){           
@@ -73,10 +74,12 @@ export default function Home() {
                     acc = await connectWithWalletConnect();
                     setWalletAccount(acc.account);
                     setProvInstance(acc.prov)
+                    console.log(acc.prov)
                 }else{
                     acc = await connectToMetaMask();
                     setWalletAccount(acc.account);
                     setProvInstance(acc.prov)
+                    console.log(acc.prov)
                 }
             }catch(error){
                 console.log(error.message)
@@ -94,48 +97,33 @@ export default function Home() {
             }else{
                 setRightNet(true)
             }
+        }  
+    },[])
 
-            if(walletAccount && rightNet){
-                getPositions();               
-                setBal();   
-                setVals();
-                getTotalstkd()
+
+    useEffect(()=>{
+        if(walletAccount){
+            if (!checkNetwork(providerInsatnce, false)) {
+                setRightNet(false);
+            }else{
+                setRightNet(true)
             }
-        }else{
-            let con =  localStorage.getItem('walletConnected');
-            console.log({con});
-            (async () => {
-                if(con == 'true') await reconWallet();
-            })() 
         }
-
-       
     })
 
-
-    // useEffect(()=>{
-    //     if(walletAccount){
-    //         if (!checkNetwork(providerInsatnce)) {
-    //             setRightNet(false);
-    //         }else{
-    //             setRightNet(true)
-    //         }
-    //     }
-    // },[walletAccount,userBalance,totalStaked,totalStakeHolders])
-
-    // useEffect( ()=>{
-    //     if(walletAccount && rightNet){
-    //         getPositions();               
-    //         setBal();   
-    //         setVals();
-    //         getTotalstkd();
-    //     }
-
-    //     //  (async () => {
-    //     //     if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")) await connectWall();
-    //     // })()
-       
-    // },[walletAccount,userBalance,totalStaked,totalStakeHolders])
+    useEffect( ()=>{
+        if(walletAccount && rightNet){
+            getPositions();               
+            setBal();   
+            setVals();
+            getTotalstkd();
+        }
+        if(!walletAccount){
+            (async () => {
+                if(localStorage.getItem('walletConnected')) await reconWallet();
+            })()
+        }
+    })
 
 
 

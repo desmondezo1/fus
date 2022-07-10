@@ -161,6 +161,31 @@ export async function connectToMetaMask() {
 // }
 
 
+export const removeCyclicRef = (object) =>{
+  const visited = new WeakSet();
+
+  const traverseData = (data) => {
+    let result = Array.isArray(data) ? [] : {};
+    if(visited.has(data)){
+      return;
+    }
+
+    if(typeof data === "object"){
+      visited.add(data);
+      for(let key in data){
+        const stageResult = traverseData(data[key]);
+        if (stageResult) {
+          result[key] = stageResult;
+        }
+      }
+    } else{
+      result = data;
+    }
+    return result;
+  }
+  return traverseData(object);
+}
+
 export function handleAccountsChanged(accounts) {
   if (accounts.length === 0) {
     // MetaMask is locked or the user has not connected any accounts
@@ -377,4 +402,4 @@ export const getWalletBalance = async (address, prov=null) =>{
 }
 
 
-export default {connectToMetaMask, checkNetwork, connectWithWalletConnect, switchNetwork, getProvider, listenForChain, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };
+export default {connectToMetaMask, removeCyclicRef, checkNetwork, connectWithWalletConnect, switchNetwork, getProvider, listenForChain, disconnect, getContract, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS };

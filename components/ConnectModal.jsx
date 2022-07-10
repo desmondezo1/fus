@@ -8,7 +8,7 @@ import Image from 'next/image';
 // import { WALLET_WIDTH } from '../../constants.js';
 import{appConnector} from "../utility/wallet"
 import { Icon } from '@iconify/react';
-import {connectToMetaMask, connectWithWalletConnect } from '../utility/wallet';
+import {connectToMetaMask, connectWithWalletConnect,removeCyclicRef } from '../utility/wallet';
 
 export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
   const [showWalletModal, setWalletShowModal] = useState(showModal);    
@@ -52,15 +52,20 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
         if(acc){
             setWalletAccount(acc.account);
             setProvInstance(acc.prov);
+            console.log(acc.prov)
             localStorage.setItem('walletConnected',true)
+            let res = removeCyclicRef(acc.prov);
+            console.log({res: JSON.stringify(res)})
         }
 
     }else if(type == 'walletconnect'){
         acc = await  connectWithWalletConnect();
         if(acc){
             setWalletAccount(acc.account);
-            setProvInstance(acc.prov)
+            setProvInstance(acc.prov);
             localStorage.setItem('walletConnected', true)
+            console.log(acc.prov)
+            console.log({res: JSON.stringify(res)});
         }
     }
        
