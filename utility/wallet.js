@@ -99,6 +99,7 @@ export async function connectToMetaMask() {
         return;
     }
     if( !ethereum.networkVersion){
+        location.reload();
         return;
     }
     if( ethereum.networkVersion !== CHAIN_ID){
