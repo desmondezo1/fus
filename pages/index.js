@@ -12,6 +12,7 @@ import { useEffect, useState } from "react"
 import stakingpools from '../utility/stakingpools'
 import ConnectModal from '../components/ConnectModal'
 import { Modal } from '../components/modal'
+import { useRouter } from 'next/router'
 import { connectToMetaMask, connectWithWalletConnect , getContract,switchNetwork, checkNetwork, listenForChain, getTokenContract, convertToWei, getWalletBalance, convertToEther, CONTRACT_ADDRESS } from '../utility/wallet'
 
 
@@ -34,6 +35,7 @@ export default function Home() {
     const [siteMessage, setSiteMessage] = useState();
     const [rightNet, setRightNet] = useState(false);
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
     const setModal = useStore( state => state.setModalData )
@@ -259,8 +261,10 @@ export default function Home() {
     const disconnectWallet = async () =>{
         disconnect();
         setWalletAccount('')
+        setProvInstance('')
         localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
         localStorage.removeItem('walletConnected')
+        router.reload(window.location.pathname)
     }
 
     const onChange = event => {
