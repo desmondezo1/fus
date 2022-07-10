@@ -113,7 +113,7 @@ export default function ConnectModal({ showModal, title = 'Connect Wallet' }) {
                     />
                     <span style={{
                         marginLeft: "17px"
-                    }} className="align-straight">Mobile Wallet</span>
+                    }} className="align-straight">Wallet Connect</span>
                   </button>
 
                   <button className="d-flex  align-items-center text-white mb-4" onClick={()=>{connectWallet(`metamask`)}}  style={{

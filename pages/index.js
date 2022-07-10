@@ -187,7 +187,6 @@ export default function Home() {
             console.log(error)
             toast.error(error.message)
         }
-      
     }
 
     //claim reward from contract
@@ -195,7 +194,9 @@ export default function Home() {
         console.log({ppid});
         let contract = await getContract(providerInsatnce);
         try {
+            setLoading(true)
             let claimreward = await contract.methods.claimReward( ppid ).send({from: walletAccount,  gasLimit: 300000});
+            setLoading(false)
         } catch (error) {
             console.log(error)
         }
@@ -268,6 +269,13 @@ export default function Home() {
         event.target.value = event.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
         setWarnAmount(+event.target.value);
     };
+
+    const setModalPillActive = ()=>{
+        document.getElementById('pills-home').classList.remove("active");
+        document.getElementById('pills-home').classList.remove("show");
+        document.getElementById('pills-contact').classList.add("active");
+        document.getElementById('pills-contact').classList.add("show");
+    }
     
 
   return (<> 
@@ -431,7 +439,7 @@ export default function Home() {
                         </div>
 
                         <div className="d-flex flex-wrap  flex-wrap  flex-wrap  flex-column">
-                            <button className=" claim-reward-btn text-white " onClick={()=>{claim_reward(item?.poolId)}} >
+                            <button className=" claim-reward-btn text-white " data-bs-toggle="modal" data-bs-target="#exampleModal" onClick={()=>{setModalItem(item); setModalPillActive(); console.log({item})}} >
                                 Claim Reward
                             </button>
                         </div>
@@ -671,7 +679,7 @@ export default function Home() {
 
                               <div key={`claim`+index} className="d-flex flex-wrap  flex-wrap  flex-wrap ">
                                   <button className="btn flex-grow-1 stake-btn" style={{fontWeight: "800", fontSize: "24px"}} onClick={()=>{claim_reward(pId)}}>
-                                      Claim reward
+                                      {!loading? 'Claim reward': 'Processing...'}
                                   </button>
                               </div>
                             </>)
