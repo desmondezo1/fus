@@ -199,6 +199,11 @@ export default function Home() {
 
     //claim reward from contract
     const claim_reward = async (ppid) => {
+        let resCl = confirm('Are you sure you want to claim Now?');
+        if(!resCl){
+            toast.info('Claiming request cancelled'); 
+            return;
+        }
         console.log({ppid});
         let contract = await getContract(providerInsatnce);
         try {
