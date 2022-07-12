@@ -12,6 +12,7 @@ export const TOKEN_ADDRESS = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 const ENV =  process.env.NEXT_PUBLIC_ENV;
 const INFURA_ID =  process.env.NEXT_PUBLIC_INFURA_ID;
+const PROVIDER_URL =  process.env.NEXT_PUBLIC_JSONRPC_PROVIDER;
 const getRevertReason = require('eth-revert-reason')
 
 
@@ -24,6 +25,8 @@ export const getProvider = async () => {
       if(ethereum){
         let provider = await detectEthereumProvider();
         return provider;
+      }else{
+        return new Web3(new Web3.providers.HttpProvider(PROVIDER_URL));
       }
    }
 }
@@ -206,6 +209,8 @@ export const switchNetwork = async () =>{
 export const getContract = async (prov)=> {
   if(!prov){
     prov = await getProvider();
+    console.log('no provider provided')
+    console.log({prov})
   }
   const web3 = new Web3(prov);
   const staking = new web3.eth.Contract(contractABI.abi, CONTRACT_ADDRESS);

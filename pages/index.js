@@ -133,12 +133,11 @@ export default function Home() {
 
     useEffect( ()=>{ 
         setVals();
+        getTotalstkd();
         if(walletAccount && rightNet){
-           
             getPositions();               
             setBal();   
             
-            getTotalstkd();
         }
         if(!walletAccount){
             (async () => {
@@ -376,7 +375,7 @@ export default function Home() {
                           <span> Total Stakers </span> 
                       </span>
   
-                      <span className="tokenValue">{!walletAccount? 0 :( !totalStakeHolders? (
+                      <span className="tokenValue">{!walletAccount? (totalStakeHolders*1) :( !totalStakeHolders? (
                             <div className="spinner-grow" role="status">
                             </div>
                           ): totalStakeHolders * 1)
@@ -395,7 +394,7 @@ export default function Home() {
                           <span>Total Fusion Staked </span> 
                       </span>
                       <span className="tokenValue">
-                      {!walletAccount? 0 :(!totalStaked?(
+                      {!walletAccount? (totalStaked * 1) :(!totalStaked?(
                             <div className="spinner-grow" role="status">
                             </div>
                           ): totalStaked * 1)}
