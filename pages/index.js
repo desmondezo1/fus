@@ -378,10 +378,10 @@ export default function Home() {
                           <span> Total Stakers </span> 
                       </span>
   
-                      <span className="tokenValue">{!walletAccount? (totalStakeHolders*1) :( !totalStakeHolders? (
+                      <span className="tokenValue">{ !totalStakeHolders? (
                             <div className="spinner-grow" role="status">
                             </div>
-                          ): totalStakeHolders * 1)
+                          ): totalStakeHolders * 1
                       
                       }  
                     
@@ -397,10 +397,10 @@ export default function Home() {
                           <span>Total Fusion Staked </span> 
                       </span>
                       <span className="tokenValue">
-                      {!walletAccount? (totalStaked * 1) :(!totalStaked?(
+                      {!totalStaked?(
                             <div className="spinner-grow" role="status">
                             </div>
-                          ): totalStaked * 1)}
+                          ): totalStaked * 1}
                       </span>
                   </span>
   
