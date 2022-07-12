@@ -291,6 +291,9 @@ export default function Home() {
         document.getElementById('pills-home').classList.remove("show");
         document.getElementById('pills-contact').classList.add("active");
         document.getElementById('pills-contact').classList.add("show");
+        document.getElementById('pills-home-tab').classList.remove("active");
+        document.getElementById('pills-contact-tab').classList.add("active");
+        
     }
     
 
