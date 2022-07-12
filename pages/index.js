@@ -132,11 +132,12 @@ export default function Home() {
     }) //set continous
 
     useEffect( ()=>{ 
+        setVals();
         if(walletAccount && rightNet){
            
             getPositions();               
             setBal();   
-            setVals();
+            
             getTotalstkd();
         }
         if(!walletAccount){
