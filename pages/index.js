@@ -226,13 +226,17 @@ export default function Home() {
             let month = monthNames[dateObj.getMonth() + 1];
             let year = dateObj.getFullYear();
             let date =  dateObj.getDate();
-            return `${date} ${month} ${year}`;
+            let hours =  dateObj.getHours();
+            let minutes =  dateObj.getMinutes();
+            return `${date} ${month} ${year} ${hours}:${minutes}`;
         }
         dateObj.setDate(dateObj.getDate() + days);
-        let month = monthNames[dateObj.getMonth() + 1];
+        let month = monthNames[dateObj.getMonth()];
         let year = dateObj.getFullYear();
         let date =  dateObj.getDate();
-        return `${date} ${month} ${year}`;
+        let hours =  dateObj.getHours();
+        let minutes =  dateObj.getMinutes();
+        return `${date} ${month} ${year} ${hours}:${minutes}`;
     }
   
     //get user's staked pools from contract
