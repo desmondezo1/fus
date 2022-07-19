@@ -223,7 +223,7 @@ export default function Home() {
         let monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         let dateObj = new Date(timestamp * 1000);
         if (days == null) {
-            let month = monthNames[dateObj.getMonth() + 1];
+            let month = monthNames[dateObj.getMonth()];
             let year = dateObj.getFullYear();
             let date =  dateObj.getDate();
             let hours =  dateObj.getHours();
